@@ -1058,18 +1058,12 @@ end
        % we only used the HF_DBi_odoursPairs & S_DBi_odoursPairs as the two
        % extreme models (black and red; Homogenous and Random) to make Fig3
        % C2,C3 and FigS1 B,C
-               
-                 HF_DBi_odoursPairs{noiseScale,mods,:,:,randomTrials}= dbiCalc(YHomog_Fthetatemp);
-                 H_DBi_odoursPairs{noiseScale,mods,:,:,randomTrials}= dbiCalc(YHomogtemp);
+       % do these calculations at No. of odors=100 and noiseScale=1 (least
+       % noise)
+               if ( (odors==100) && (noiseScale==1))
+                 HF_DBi_odoursPairs{:,:,randomTrials}= dbiCalc(YHomog_Fthetatemp);
 
-                 SF_DBi_odoursPairs {noiseScale,mods,:,:,randomTrials}= dbiCalc(Y_Fthetatemp);
-                 S_DBi_odoursPairs {noiseScale,mods,:,:,randomTrials}= dbiCalc(Ytemp);
-
-                 VarWF_DBi_odoursPairs{noiseScale,mods,:,:,randomTrials}= dbiCalc(Y_varw_fixedN_and_thetatemp);
-                 VarW_DBi_odoursPairs{noiseScale,mods,:,:,randomTrials}= dbiCalc(Y_varw_fixedNtemp);
-
-                 VarNF_DBi_odoursPairs{noiseScale,mods,:,:,randomTrials}= dbiCalc(Y_varN_fixedW_and_thetatemp);
-                 VarN_DBi_odoursPairs{noiseScale,mods,:,:,randomTrials}= dbiCalc(Y_varN_fixedWtemp);
+                 S_DBi_odoursPairs {:,:,randomTrials}= dbiCalc(Ytemp);
 
                  % calc. DBI between ' all good' and 'all bad' odors
                  % Fig3D2, D3
@@ -1098,25 +1092,21 @@ end
                    S2RespVarHo_Ftheta= sqrt(mean(vecnorm((  S2RespAcTrialsHo_Ftheta- S2RespAcTrialsHoCentroid_Ftheta) )));  
                       
                    % calculate angular distance between odor pairs in the
-                   % random and homogenous models: Pairwise Ang.dist Tensor [for
-                   % how many odors used (50,100,150, or 200)
-                   % x random fly networks (20) x noise scales in the
-                   % input (3) x K odors x K odors]
-                   S_PW_AngDist(mods,randomTrials,noiseScale,:,:)=AngDist_Pw_Calc(Y);
-                   H_PW_AngDist(mods,randomTrials,noiseScale,:,:)=AngDist_Pw_Calc(YHomog_Ftheta);
+                   % random and homogenous models: Pairwise Ang.dist Tensor [
+                   % random fly networks (20) x  K odors x K odors]
+                   S_PW_AngDist(:,:,randomTrials)=AngDist_Pw_Calc(Y);
+                   H_PW_AngDist(:,:,randomTrials)=AngDist_Pw_Calc(YHomog_Ftheta);
                    
                    % calculate DBI between 'bad' and 'good' odors classes
-                   S_Cw_DBI(mods,randomTrials,noiseScale)=  (S1RespVar+S2RespVar)/( norm( S1RespAcTrialsCentroid-S2RespAcTrialsCentroid));
-                   HF_Cw_DBI(mods,randomTrials,noiseScale)= (S1RespVarHo_Ftheta+S2RespVarHo_Ftheta)/(norm(S1RespAcTrialsHoCentroid_Ftheta- S2RespAcTrialsHoCentroid_Ftheta));
+                   S_Cw_DBI(randomTrials)=  (S1RespVar+S2RespVar)/( norm( S1RespAcTrialsCentroid-S2RespAcTrialsCentroid));
+                   HF_Cw_DBI(randomTrials)= (S1RespVarHo_Ftheta+S2RespVarHo_Ftheta)/(norm(S1RespAcTrialsHoCentroid_Ftheta- S2RespAcTrialsHoCentroid_Ftheta));
                    
                    % calculate angular distance between 'bad' and 'good'
-                   % odors classes: Tensor [ % how many odors used (50,100,150, or 200)
-                   % x random fly networks (20) x noise scales in the
-                   % input (3)x1]
+                   % odors classes: Tensor [ random fly networks (20) x 1]
                    
-                    S_Cw_AngDist(mods,randomTrials,noiseScale)= (acos(( (S1RespAcTrialsCentroid'/norm(S1RespAcTrialsCentroid'))*(S2RespAcTrialsCentroid/norm(S2RespAcTrialsCentroid))) )/ (0.5*pi) ) ;
-                    HF_Cw_AngDist(mods,randomTrials,noiseScale)= (acos(( (S1RespAcTrialsHoCentroid_Ftheta'/norm(S1RespAcTrialsHoCentroid_Ftheta'))*(S2RespAcTrialsHoCentroid_Ftheta/norm(S2RespAcTrialsHoCentroid_Ftheta))) )/ (0.5*pi) ) ;
-
+                    S_Cw_AngDist(randomTrials)= (acos(( (S1RespAcTrialsCentroid'/norm(S1RespAcTrialsCentroid'))*(S2RespAcTrialsCentroid/norm(S2RespAcTrialsCentroid))) )/ (0.5*pi) ) ;
+                    HF_Cw_AngDist(randomTrials)= (acos(( (S1RespAcTrialsHoCentroid_Ftheta'/norm(S1RespAcTrialsHoCentroid_Ftheta'))*(S2RespAcTrialsHoCentroid_Ftheta/norm(S2RespAcTrialsHoCentroid_Ftheta))) )/ (0.5*pi) ) ;
+               end
 
             end
 
