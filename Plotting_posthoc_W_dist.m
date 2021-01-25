@@ -34,7 +34,7 @@ Ftemp=figure(2);
 
 for fly=1:20
     
-     load(strcat(CurrentDir,'/Kenn_Vs_mine_withInhibition_plasticityModel',['_fly_wNoise',num2str(fly),num2str(1)]),'thisW_ActivityBasedComp_noxjk')
+     load(strcat(CurrentDir,'/TunedFlies_allModels',['_fly_wNoise',num2str(fly),num2str(1)]),'thisW_ActivityBasedComp_noxjk')
       W(:,:,fly)=thisW_ActivityBasedComp_noxjk;
       
       % scale the tuned distribution of weights by the ratio of the mean of
@@ -66,7 +66,7 @@ FTemp=figure(2)
 % do the same for the alternate rules for tuning W: FigS3 C&D 
 for fly=1:20
     
-     load(strcat(CurrentDir,'/Kenn_Vs_mine_withInhibition_plasticityModel',['_fly_wNoise',num2str(fly),num2str(1)]),'thisW_ActivityBasedComp','thisW_ActivityBasedComp_wHy')     
+     load(strcat(CurrentDir,'/TunedFlies_allModels',['_fly_wNoise',num2str(fly),num2str(1)]),'thisW_ActivityBasedComp','thisW_ActivityBasedComp_wHy')     
      W_1(:,:,fly)=thisW_ActivityBasedComp; 
      W_2(:,:,fly)=thisW_ActivityBasedComp_wHy;
      
