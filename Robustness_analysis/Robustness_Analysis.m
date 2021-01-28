@@ -1631,7 +1631,7 @@ toc
             
                 
                 
-                [accH1]=fourModels_KernelTesting_Ftheta(C,WopAllOdoursHomog_Ftheta,PNtrials_tune_train, thetaH_Ftheta,InhibitionGain, APLgains,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp);
+                [accH1]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta,PNtrials_tune_train, thetaH_Ftheta,InhibitionGain, APLgains,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp);
                 
                 test_p_raH_FixedTheta(randomTrials,tune,l_r,c)=accH1;  
                 
