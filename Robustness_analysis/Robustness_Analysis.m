@@ -1636,7 +1636,7 @@ toc
                 test_p_raH_FixedTheta(randomTrials,tune,l_r,c)=accH1;  
                 
                 
-                [accH1_tune_is_train]=fourModels_KernelTesting_Ftheta(C,WopAllOdoursHomog_Ftheta_tune_is_train,PNtrials_tune_train, thetaH_Ftheta_tune_is_train,InhibitionGain_tune_is_train, APLgains_tune_is_train,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp_tune_is_train);
+                [accH1_tune_is_train]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta_tune_is_train,PNtrials_tune_train, thetaH_Ftheta_tune_is_train,InhibitionGain_tune_is_train, APLgains_tune_is_train,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp_tune_is_train);
                 
                 test_p_raH_FixedTheta_tune_is_train(randomTrials,tune,l_r,c)=accH1_tune_is_train;  
                 
