@@ -1,7 +1,7 @@
 These scripts are intended to reproduce the results of Figure 2,3,4 and S1. 
 By running **VarDegradesPerf.m**, it will run its required functions dependencies and will generate the following in the MATLAB local current directory:
 
-1.  **testing accuracies for the 8 models** (Homogeneous model with all 3 network parameters fixed, to the Random model; with all params are varrying), see Fig2 in the paper, these .mat data will be named: "*test_p_ra**.mat", 
+1. **testing accuracies for the 8 models** (Homogeneous model with all 3 network parameters fixed, to the Random model; with all params are varrying), see Fig2 in the paper, these .mat data will be named: "*test_p_ra**.mat", 
    1. 'test_p_ra'--> the Random model
    1. 'test_p_raH --> Homoegenous W and N,variable theta
    1. 'test_p_ra_Fixedtheta'-->Random variable N and W, fixed theta
