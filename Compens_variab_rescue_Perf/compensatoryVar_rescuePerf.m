@@ -1619,7 +1619,7 @@ for mods=1:modss
                 test_p_raInhPlast(randomTrials,noiseScale, l_r,c)= accInhPlast;
                 test_p_ra_thetaHomeo(randomTrials,noiseScale, l_r,c)= accThetaHomeo;
                 
-              [accH1]=fourModels_KernelTesting_Ftheta(C,WopAllOdoursHomog_Ftheta,PNtrials, thetaH_Ftheta,InhibitionGain, APLgains,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp);
+              [accH1]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta,PNtrials, thetaH_Ftheta,InhibitionGain, APLgains,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp);
 
                 test_p_raH_FixedTheta(randomTrials,noiseScale, l_r,c)=accH1;  
                 
