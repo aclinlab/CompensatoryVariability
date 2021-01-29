@@ -4,9 +4,6 @@
 ![Drosophila](/images/Drosophila.jpg)
  <figcaption> (Credit: Katja Schulz)</figcaption>
 
-
-
-
 ## We splitted the code in the follwoing subfolders for simpler deployment. 
   1. For Fig 2,3,4 and S1, go to the folder "Variability_degrades_Perf"
   1. For Fig 5, S2, S3 and S4, go to the folder "Compens_variab_rescue_Perf"
