@@ -11,7 +11,7 @@ By running **VarDegradesPerf.m**, it will run its required functions dependencie
    1. 'test_p_ra_varN_FixedW_FixedTheta'--> Variable N, fixed W and theta
    1. 'test_p_ra_varN_FixedW'--> Variable N and theta, fixed W.
 
-These matrices calculate the models accuracies function of 4 variables: they are 5D matrices, [number of input odors **N** x random network trial (**fly**) x **noise in the input** x **learning rate to update the KC-MBON output weights** x **determinancy in the decision making (C)**] 
+These matrices calculate the models accuracies function of 4 variables: they are 5D matrices, {number of input odors **N** x random network trial (**fly**) x **noise in the input** x **learning rate to update the KC-MBON output weights** x **determinancy in the decision making (C)**} 
 
 The bars in **Fig2 B** are at the peak performance conditions, (**N** =100, **noise in the input** =0.1, **peak learning rates for each model**, and **C=10**). The performances trends were plotted though as function of each of these 4 variables while holding the other 3 constant in **Fig2 C1-C4.** 
                                           
