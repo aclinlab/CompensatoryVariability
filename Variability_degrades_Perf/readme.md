@@ -19,7 +19,7 @@
 1. **DBI between odors pairs, DBI between 'good' and 'bad' odor classes** for the Homogenous and Random models. 
 1. **Angular distance between odors pairs, Angular Distance between 'good' and 'bad' odor classes** for the Homogenous and Random models.
 
-## Finally, for replicating the results in **FigS1** which uses the original Hallem-Carlson data and not fictitious odors derived from it : in the **VarDegradesPerf.m** code one needs to:
+## Finally, for replicating the results in **FigS1** which uses the original Hallem-Carlson data and not fictitious odors derived from it: in the **VarDegradesPerf.m** code one needs to:
 1. change line 20 &21 to: **modss=1; mulOd=110;**
 2. By commenting line **60** and uncommenting **63**. 
 
