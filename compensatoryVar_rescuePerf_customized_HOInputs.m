@@ -45,7 +45,7 @@ for Pn=1:24
 end
 
 % start a local parallel pool of 3 threads to speed up simulation time        
-p=parpool(3);
+p=parpool(6);
 p.IdleTimeout = 1000;
 parfevalOnAll(@maxNumCompThreads,0,3)
 
