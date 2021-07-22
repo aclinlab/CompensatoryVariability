@@ -23,7 +23,8 @@ ll=20;
 numtrainingSamples=15; %% artificial plus linearly dependent responses
 modss=1;
 mulOd=110;
-lrs=7;
+%lrs=7;
+logLRs = [-5 -4 -3 -2.75 -2.5 -2.25 -2 -1 0 1];
 Crange=1;
 odors=mulOd;
 numTrials = 30;
@@ -1104,8 +1105,7 @@ for mods=1:modss
                 CL_vec(t)= CL_;
                 
                 t=t+1;
-                size(find(abs(avgAKcs-A0)>epsilon))
-                CL_
+                disp([length(find(abs(avgAKcs-A0)>epsilon)), CL_])
             end
             
             theta_Activity_homeo=C_.*theta_Activity_homeo;
@@ -1226,8 +1226,7 @@ for mods=1:modss
                 avgAct(t,:)= (avgAKcs);
                 CL_vec(t)= CL_;
                 
-                size(find(abs(avgAKcs-A0)>epsilon))
-                CL_
+                disp([length(find(abs(avgAKcs-A0)>epsilon)), CL_])
                 t=t+1;
                 
             end
@@ -1302,7 +1301,7 @@ for mods=1:modss
             end
             
             
-            for l_r=1:lrs
+            for l_r=1:length(logLRs)
                 
                 WopAllOdours=1*rand(n,2);
                 WopAllOdoursEqualized= WopAllOdours;
@@ -1322,7 +1321,7 @@ for mods=1:modss
                 WopAllOdoursEqualizedComp2_wHy= WopAllOdours;
                 
                 
-                alpha=0.000001* (10^((l_r)));
+                alpha=10^logLRs(l_r);%0.000001* (10^((l_r)));
                 
                 c=1;
                 ceq=1;
