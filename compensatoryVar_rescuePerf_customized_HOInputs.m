@@ -1567,7 +1567,7 @@ for mods=1:modss
 end
 
 %% save the following in the MATLAB current directory.
-cd pwd
+
 %% save the models' accuracy scores:
 save('test_p_ra_withround_HOinp.mat','test_p_ra');
 save('test_p_raEq_withround_HOinp.mat','test_p_raEq');
