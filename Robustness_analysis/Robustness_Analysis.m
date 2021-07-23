@@ -69,7 +69,7 @@ for randomTrials=1:ll
 
     HomogClaws= ones([1,n])*6; 
 
-    PNsperKC = floor(clawsNo.*ones(1,n));
+    PNsperKC = round(clawsNo.*ones(1,n));
 
     HomogPNsperKC= HomogClaws;
 
@@ -101,6 +101,7 @@ for randomTrials=1:ll
     thisW_HomogModel=zeros(m,n);
 
     thisW_Kennedy_0= zeros(m,n);
+    thisW_ActivityBasedComp_noxjk_0 = zeros(m,n);
 
     initial_thisW_ActivityBasedComp= zeros(m,n);
 
@@ -143,7 +144,7 @@ for randomTrials=1:ll
           initial_thisW_ActivityBasedComp(whichPN,k)= initial_thisW_ActivityBasedComp(whichPN,k)+ thisWeight_activityComp;
           
           thisW_=(5+rand(1));
-          thisW_ActivityBasedComp_noxjk_0(i,j)= thisW_ActivityBasedComp_noxjk_0(i,j)+ thisW_;
+          thisW_ActivityBasedComp_noxjk_0(whichPN,k)= thisW_ActivityBasedComp_noxjk_0(whichPN,k)+ thisW_;
 
         end
     end
