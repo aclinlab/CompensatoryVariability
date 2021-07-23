@@ -490,9 +490,10 @@ for mods=1:modss
             
             thisW_equalizedModel=thisW_equalizedModel{1};
             
+            disp('time to run black,red,cyan models:');
             toc
             
-            
+            tic
             %% tuning the input PN-KC weights using the simplified learning rule
             % our main model for tuning the PN-KC weights presented in Fig5 (the Blue
             % % model)
@@ -517,7 +518,7 @@ for mods=1:modss
             A=zeros(n,odors*numtrainingSamples);
             Y_d=zeros(n,odors*numtrainingSamples);
             codingLevelDummy=[];
-            
+            t=1;
             while(~conditions)
                 
                 % with inhibition gain absent, scaling thetas distribution to acheive
@@ -604,11 +605,18 @@ for mods=1:modss
                     
                 end
                 CL_=mean(codingLevelDummy);
-                
+                if mod(t,20)==0
+                    disp(length(find(abs(avgAKcs-A0)>epsilon)))
+                    disp(CL_)
+                end
+                t=t+1;
+
                 conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
             end
             
             theta_comp2_noxjk=(C_.*theta_comp2_noxjk);
+            disp('time to run blue model');
+            toc
             
             
             %% tuning input excitatory weights, H_indiv in FigS3, the dark blue model
@@ -1104,12 +1112,15 @@ for mods=1:modss
                 InhAbs_CL_vec(t)=InhAbs_CL;
                 avgAct(t,:)= (avgAKcs);
                 CL_vec(t)= CL_;
-                
+                if mod(t,20)==0
+                    disp(length(find(abs(avgAKcs-A0)>epsilon)))
+                    disp(CL_)
+                end
                 t=t+1;
-                size(find(abs(avgAKcs-A0)>epsilon))
-                CL_
+                
             end
-            
+            disp('time to run magenta model:');
+            toc
             theta_Activity_homeo=C_.*theta_Activity_homeo;
             
             %% inhibitory plasticity compensation
@@ -1227,16 +1238,17 @@ for mods=1:modss
                 InhAbs_CL_vec(t)=InhAbs_CL;
                 avgAct(t,:)= (avgAKcs);
                 CL_vec(t)= CL_;
-                
-                size(find(abs(avgAKcs-A0)>epsilon))
-                CL_
+                if mod(t,20)==0
+                    disp(length(find(abs(avgAKcs-A0)>epsilon)))
+                    disp(CL_)
+                end
                 t=t+1;
                 
             end
             theta_inhibitionPlast=(C_.*theta_inhibitionPlast);
             thisW_ActivityBasedComp_inhibitionPlast= (cw.*thisW_ActivityBasedComp_inhibitionPlast);
             
-            
+            disp('time to run green model:');
             toc
             
             %                save the parameters for each fly, connectivity weights,
