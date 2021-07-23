@@ -1537,19 +1537,19 @@ for mods=1:modss
                     
                     C=C_SoftMax*(10^c);
                     
-                    [acc,accEq,accEq2_noxjk,accEq2, accEq2_wHy,accKenn,accInhPlast,accThetaHomeo]=testingModels_accuracies(C,WopAllOdours,WopAllOdoursEqualized, WopAllOdoursEqualizedComp2_noxjk,WopAllOdoursEqualizedComp2,WopAllOdoursEqualizedComp2_wHy, WopAllOdoursKenn, WopAllOdoursInhPlast,...
-                        WopAllOdoursThetaHomeo, classAction1,numTrials,numtrainingSamples,Ytemp,YEqualizedtemp,Y_comp2_noxjktemp,Y_comp2temp,Y_comp2_wHytemp,Y_Kenntemp,Y_inhibPlasttemp,Y_theta_activity_homeotemp);
+                    [acc,accEq,accEq2_noxjk,accKenn,accInhPlast,accThetaHomeo]=testingModels_accuracies(C,WopAllOdours,WopAllOdoursEqualized, WopAllOdoursEqualizedComp2_noxjk, WopAllOdoursKenn, WopAllOdoursInhPlast,...
+                        WopAllOdoursThetaHomeo, classAction1,numTrials,numtrainingSamples,Ytemp,YEqualizedtemp,Y_comp2_noxjktemp,Y_Kenntemp,Y_inhibPlasttemp,Y_theta_activity_homeotemp);
                     
                     test_p_raEq(randomTrials, l_r,c)=accEq;
                     test_p_ra(randomTrials, l_r,c)=acc;
-                    test_p_raEq2(randomTrials, l_r,c)=accEq2;
+                    %test_p_raEq2(randomTrials, l_r,c)=accEq2;
                     test_p_raKenn(randomTrials, l_r,c)= accKenn;
                     test_p_raInhPlast(randomTrials, l_r,c)= accInhPlast;
                     test_p_ra_thetaHomeo(randomTrials, l_r,c)= accThetaHomeo;
                     test_p_raEq2_noxjk(randomTrials, l_r,c)= accEq2_noxjk;
-                    test_p_raEq2_wHy(randomTrials, l_r,c)= accEq2_wHy;
+                    %test_p_raEq2_wHy(randomTrials, l_r,c)= accEq2_wHy;
                     
-                    [accH1]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta,PNtrials, thetaH_Ftheta,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp);
+                    [accH1]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta,PNtrials, thetaH_Ftheta,InhibitionGain, APLgains,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp);
                     
                     test_p_raH_FixedTheta(randomTrials, l_r,c)=accH1;
                     
