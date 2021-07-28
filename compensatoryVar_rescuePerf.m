@@ -24,6 +24,7 @@ numtrainingSamples=15; %% artificial plus linearly dependent responses
 modss=1;
 mulOd=100;
 lrs=7;
+logLRs = [-5 -4 -3 -2.75 -2.5 -2.25 -2 -1 0 1];
 Crange=2;
 odors=mulOd;
 numTrials = 30;
@@ -88,9 +89,9 @@ plot(xrange, p(1)*xrange + p(2))
 %% recover the original fictitious odors from the rescaled fictitious odors
 PNs = (PNs_1_ - p(2))/p(1);
 % start a local parallel pool of 3 threads to speed up simulation time
-p=parpool(3);
-p.IdleTimeout = 1000;
-parfevalOnAll(@maxNumCompThreads,0,3)
+% p=parpool(3);
+% p.IdleTimeout = 1000;
+% parfevalOnAll(@maxNumCompThreads,0,3)
 
 
 for mods=1:modss
@@ -847,7 +848,7 @@ for mods=1:modss
                 depsi1_dy(isnan(depsi1_dy))=0;
                 depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_comp2_wHy,1,odors*numtrainingSamples));
                 %eta=10.*mean(Y_d,2);
-                eta=0.5;
+                eta=0.5; %10; %0.5;
                 Grad= ((InhAbs_CL)-0.20)*(1/(n*odors*numtrainingSamples))*(sum(depsi1_dtheta(:) ));
                 C_=C_ - (eta*Grad);
                 
@@ -857,7 +858,7 @@ for mods=1:modss
                 
                 % replicating the sparsity level of the KCs in real MB network
                 % CL=10%
-                eta_2=0.00000001;
+                eta_2=0.00000001; %0.00000005; %0.00000001;
                 for trial = 1:(odors*numtrainingSamples)
                     
                     Activations(:,trial) = thisW_ActivityBasedComp_wHy'*PNtrials(:,trial);
@@ -1462,7 +1463,7 @@ for mods=1:modss
             InhPlast_LTSpar(randomTrials)=std(InhPlastSpar(~isnan(InhPlastSpar)));
             
             
-            for l_r=1:lrs
+            for l_r=1:length(logLRs) %lrs
                 
                 WopAllOdours=1*rand(n,2);
                 WopAllOdoursEqualized= WopAllOdours;
@@ -1482,7 +1483,7 @@ for mods=1:modss
                 WopAllOdoursEqualizedComp2_wHy= WopAllOdours;
                 
                 
-                alpha=0.000001* (10^((l_r)));
+                alpha=10.^logLRs(l_r); %0.000001* (10^((l_r)));
                 
                 c=1;
                 ceq=1;
