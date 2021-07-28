@@ -103,6 +103,7 @@ for mods=1:modss
 %         x=PN;
                    
     for randomTrials=1:ll
+        randomTrials
            
         classAction1=randsample([1:odors],round(odors/2),'false');
         % it was 1.8
@@ -545,6 +546,7 @@ for mods=1:modss
 %% tuning the input PN-KC weights using the simplified learning rule
 % our main model for tuning the PN-KC weights presented in Fig5 (the Blue
 % model)
+                tic
                 thisW_ActivityBasedComp_noxjk=initial_thisW_ActivityBasedComp;
                 Activations =zeros(n,odors*numtrainingSamples);
                 ActivationsDummy= zeros(n, odors*numtrainingSamples);
@@ -567,6 +569,7 @@ for mods=1:modss
                 Y_d=zeros(n,odors*numtrainingSamples);
                 codingLevelDummy=[];
 
+                t = 1;
                 while(~conditions)
 
                 % with inhibition gain absent, scaling thetas distribution to acheive 
@@ -655,9 +658,16 @@ for mods=1:modss
                  CL_=mean(codingLevelDummy);
 
                  conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
+                 if mod(t,10)==0
+                     disp(CL_);
+                     disp(nnz(abs(avgAKcs-A0)<epsilon))
+                 end
+                 t=t+1;
                 end
   
               theta_comp2_noxjk=(C_.*theta_comp2_noxjk);
+              toc
+              disp('finished blue model');
 
                 
 %% tuning input excitatory weights, H_indiv in FigS3, the dark blue model
