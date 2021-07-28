@@ -694,6 +694,7 @@ for mods=1:modss
             Y_d=zeros(n,odors*numtrainingSamples);
             codingLevelDummy=[];
             
+            t=1;
             while(~conditions)
                 
                 
@@ -790,10 +791,16 @@ for mods=1:modss
                 
                 Inhabs_CLV(end+1)=InhAbs_CL;
                 CLV(end+1)=CL_;
-                
+                if mod(t,10)==0
+                    disp(CL_);
+                    disp(nnz(abs(avgAKcs-A0)<epsilon))
+                end
+                t=t+1;
+
             end
             
             theta_comp2=(C_.*theta_comp2);
+            disp('finished the dark blue model');
             toc
             %% tuning the input PN-KC weights using the learning rule derived
             %  from the error function: with the H(Y) term; H_active in FigS3
@@ -821,6 +828,7 @@ for mods=1:modss
             Y_=zeros(n,odors*numtrainingSamples);
             codingLevelDummy=[];
             
+            t=1;
             while(~conditions)
                 
                 
@@ -937,9 +945,17 @@ for mods=1:modss
                 
                 strayKCs= avgAKcs(find(abs(avgAKcs-A0)>epsilon));
                 conditions=  ( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 ) & (all(strayKCs==0));
+                if mod(t,10)==0
+                    disp(CL_);
+                    disp(nnz(abs(avgAKcs-A0)<epsilon))
+                end
+                t=t+1;
+
             end
             
             theta_comp2_wHy=(C_.*theta_comp2_wHy);
+            toc
+            disp('finished the light blue model');
             
             %% tuning theta for equalizing KCs firing probabilities: Kennedy's 2019 inspired model
             tic
@@ -1033,6 +1049,7 @@ for mods=1:modss
                 
             end
             toc
+            disp('finished dark magenta model');
             
             
             %% theta tuned for activity equalization, our main model for tuning theta in Fig5
@@ -1163,13 +1180,16 @@ for mods=1:modss
                 InhAbs_CL_vec(t)=InhAbs_CL;
                 avgAct(t,:)= (avgAKcs);
                 CL_vec(t)= CL_;
-                
+                if mod(t,10)==0
+                    size(find(abs(avgAKcs-A0)>epsilon))
+                    CL_
+                end
                 t=t+1;
-                size(find(abs(avgAKcs-A0)>epsilon))
-                CL_
             end
             
             theta_Activity_homeo=C_.*theta_Activity_homeo;
+            toc
+            disp('finished magenta model')
             
             %% inhibitory plasticity compensation
             tic
@@ -1286,9 +1306,10 @@ for mods=1:modss
                 InhAbs_CL_vec(t)=InhAbs_CL;
                 avgAct(t,:)= (avgAKcs);
                 CL_vec(t)= CL_;
-                
-                size(find(abs(avgAKcs-A0)>epsilon))
-                CL_
+                if mod(t,10)==0
+                    size(find(abs(avgAKcs-A0)>epsilon))
+                    CL_
+                end
                 t=t+1;
                 
             end
@@ -1297,7 +1318,7 @@ for mods=1:modss
             
             
             toc
-            
+            disp('finished green model')
             %                save the parameters for each fly, connectivity weights,
             %                spiking thresholds and inhibition Gains in all the models
             
