@@ -48,7 +48,7 @@ for mods=1:modss
     
     % random fly instantiations
     for randomTrials=1:ll
-        
+        randomTrials
         % load the 100 odors from 2E
         
         
@@ -159,7 +159,7 @@ for mods=1:modss
         % testing models at different scales of input noise: Fig2C3
         for noiseScale=1:NScales
             
-            noise=((noiseScale^2)/10);
+            noise=1; %((noiseScale^2)/10);
             PNtrials = zeros(24, odors, numTrials);
             SNR=zeros(24,odors,numTrials);
             PNtrials(:,:,1) =x;
@@ -1017,7 +1017,7 @@ for mods=1:modss
     end
 end
 
-cd pwd
+%cd pwd
 % Models accuracies
 save('test_p_ra.mat','test_p_ra');
 save('test_p_raH.mat','test_p_raH');

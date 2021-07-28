@@ -239,6 +239,7 @@ for randomTrials=1:ll
     
 end
 
+save('logLRs.mat','logLRs');
 save('test_p_ra.mat','test_p_ra');
 save('test_p_raH.mat','test_p_raH');
 save('test_p_ra_Fixedtheta.mat','test_p_ra_Fixedtheta');
