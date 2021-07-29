@@ -660,6 +660,7 @@ for mods=1:modss
                 
                 conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
                 if mod(t,10)==0
+                    disp(t)
                     disp(CL_);
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
                 end
@@ -793,6 +794,7 @@ for mods=1:modss
                 Inhabs_CLV(end+1)=InhAbs_CL;
                 CLV(end+1)=CL_;
                 if mod(t,10)==0
+                    disp(t)
                     disp(CL_);
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
                 end
@@ -848,7 +850,7 @@ for mods=1:modss
                 depsi1_dy(isnan(depsi1_dy))=0;
                 depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_comp2_wHy,1,odors*numtrainingSamples));
                 %eta=10.*mean(Y_d,2);
-                eta=0.5; %10; %0.5;
+                eta=2;%0.5; %10; %0.5;
                 Grad= ((InhAbs_CL)-0.20)*(1/(n*odors*numtrainingSamples))*(sum(depsi1_dtheta(:) ));
                 C_=C_ - (eta*Grad);
                 
@@ -858,7 +860,7 @@ for mods=1:modss
                 
                 % replicating the sparsity level of the KCs in real MB network
                 % CL=10%
-                eta_2=0.00000001; %0.00000005; %0.00000001;
+                eta_2=0.00000002;%0.00000001; %0.00000005; %0.00000001;
                 for trial = 1:(odors*numtrainingSamples)
                     
                     Activations(:,trial) = thisW_ActivityBasedComp_wHy'*PNtrials(:,trial);
@@ -907,7 +909,7 @@ for mods=1:modss
                 avgAKcs=mean(Y_,2);
                 errorInActivity=(1).*repmat((avgAKcs-A0)',m,1);
                 mask=filt_Xjm;
-                thisW_ActivityBasedComp_wHy= thisW_ActivityBasedComp_wHy-(0.05).*((1.*(mask.*errorInActivity)));
+                thisW_ActivityBasedComp_wHy= thisW_ActivityBasedComp_wHy-(0.15).*((1.*(mask.*errorInActivity)));
                 
                 
                 if (~isempty(find(isinf(thisW_ActivityBasedComp_wHy) )))
@@ -945,10 +947,17 @@ for mods=1:modss
                 % level A0 have to be the silent KCs only
                 
                 strayKCs= avgAKcs(find(abs(avgAKcs-A0)>epsilon));
+                nonsilentKCindices = avgAKcs>0;
                 conditions=  ( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 ) & (all(strayKCs==0));
+                InhAbs_CL_vec(t)=InhAbs_CL;
+                avgAct(t,:)= (avgAKcs);
+                CL_vec(t)= CL_;
+
                 if mod(t,10)==0
+                    disp(t)
                     disp(CL_);
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
+                    disp(nnz(nonsilentKCindices))
                 end
                 t=t+1;
 
@@ -1093,7 +1102,7 @@ for mods=1:modss
                 
                 depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_Activity_homeo,1,odors*numtrainingSamples));
                 
-                eta=0.1;
+                eta=1;%0.1;
                 
                 
                 Grad= ((InhAbs_CL)-0.20)*(1/(n*odors*numtrainingSamples))*(sum(depsi1_dtheta(:) ));
@@ -1106,7 +1115,7 @@ for mods=1:modss
                 end
                 
                 %% CL=10% constraint
-                eta_2=0.00000001;
+                eta_2=0.000000005;%0.00000001;
                 
                 
                 Activations= multiprod(thisW_Kennedy',PNtrials(:,:,1:numtrainingSamples));
