@@ -192,7 +192,7 @@ for randomTrials=1:ll
               
         for noiseScale=1:NScales 
      
-                noise=((noiseScale^2)/10);
+                noise=1; %((noiseScale^2)/10);
                 PNtrials = zeros(24, odorsTuning, numTrials);
                 PNtrials_tune_train = zeros(24, odorsTuning_training, numTrials);
                 PNtrials(:,:,1) =x;
@@ -288,7 +288,7 @@ for randomTrials=1:ll
                        ThetaInd= round(((theta(k)-0.01)/0.1)+1);
                        %% capping theta at 0.1..
                        ThetaInd(ThetaInd==0)=1;
-                       this_KCWeights= PW_given_theta_and_n(N_per_KC(k)-1,ThetaInd,:);
+                       this_KCWeights= PW_given_theta_and_n(PNsperKC(k)-1,ThetaInd,:);
                        thisWeight_equalizedModel= randsample(W,1,'true', this_KCWeights);
                       thisW_equalizedModel(j,k)= thisW_equalizedModel(j,k)+thisWeight_equalizedModel;
 
@@ -357,9 +357,19 @@ for randomTrials=1:ll
                theta_tune_is_train= theta_0; 
                C_theta_1=1;
 
-               [thisW_equalizedModel_tune_is_train,theta_tune_is_train, InhibitionGain_tune_is_train,CL_, InhAbs_CL] = Tune_Pw_G_N_T_Model_on_trainingData(N_per_KC,PW_given_theta_and_n,W,thisW_equalizedModel_tune_is_train,...
-                             PNtrials_tune_train, theta_tune_is_train,InhibitionGain_tune_is_train,odors,numtrainingSamples,C_theta_1 );
+               [thisW_equalizedModel_tune_is_train,theta_tune_is_train, InhibitionGain_tune_is_train,CL_, InhAbs_CL] = Tune_Pw_G_N_T_Model_on_trainingData(PNsperKC,PW_given_theta_and_n,W,thisW_equalizedModel_tune_is_train,...
+                   PNtrials_tune_train, theta_tune_is_train,InhibitionGain_tune_is_train,odors,numtrainingSamples,C_theta_1 );
+               
+               CLevelP_tune_train(1)=CL_;
+               INHAbs_CLP_tune_train(1)=InhAbs_CL;
+               %APLgainP_tune_train(2)=APLgainP_tune_train_H;
+               
+               InhibitionGain_tune_train(1)=InhibitionGain_tune_is_train
+               
+               theta_tune_train(1)=theta_tune_is_train;
+               thisW_equalizedModel_tune_train(1) = thisW_equalizedModel_tune_is_train;
 
+                         
                %% for the random model:               
          
                    elseif labindex==2                      
