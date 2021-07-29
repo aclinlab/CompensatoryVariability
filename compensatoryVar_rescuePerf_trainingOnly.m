@@ -377,7 +377,7 @@ for randomTrials=1:numFlies
             
             test_p_raEq(randomTrials,noiseScale, l_r,c)=testingModels_accuracies_function(C,WopAllOdoursEqualized,classAction1,numTrials,numtrainingSamples,YEqualizedtemp);
             test_p_ra(randomTrials,noiseScale, l_r,c)=testingModels_accuracies_function(C,WopAllOdours,classAction1,numTrials,numtrainingSamples,Ytemp);
-            test_p_raEq2(randomTrials, l_r,c)=testingModels_accuracies_function(C,WopAllOdoursEqualizedComp2,classAction1,numTrials,numtrainingSamples,Y_comp2temp);
+            test_p_raEq2(randomTrials, noiseScale,l_r,c)=testingModels_accuracies_function(C,WopAllOdoursEqualizedComp2,classAction1,numTrials,numtrainingSamples,Y_comp2temp);
             test_p_raKenn(randomTrials,noiseScale, l_r,c)= testingModels_accuracies_function(C,WopAllOdoursKenn,classAction1,numTrials,numtrainingSamples,Y_Kenntemp);
             test_p_raInhPlast(randomTrials,noiseScale, l_r,c)= testingModels_accuracies_function(C,WopAllOdoursInhPlast,classAction1,numTrials,numtrainingSamples,Y_inhibPlasttemp);
             test_p_ra_thetaHomeo(randomTrials,noiseScale, l_r,c)= testingModels_accuracies_function(C,WopAllOdoursThetaHomeo,classAction1,numTrials,numtrainingSamples,Y_theta_activity_homeotemp);
