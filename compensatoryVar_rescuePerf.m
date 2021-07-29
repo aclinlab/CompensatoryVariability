@@ -949,9 +949,9 @@ for mods=1:modss
                 strayKCs= avgAKcs(find(abs(avgAKcs-A0)>epsilon));
                 nonsilentKCindices = avgAKcs>0;
                 conditions=  ( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 ) & (all(strayKCs==0));
-                InhAbs_CL_vec(t)=InhAbs_CL;
-                avgAct(t,:)= (avgAKcs);
-                CL_vec(t)= CL_;
+                InhAbs_CL_vec_lightBlue(t)=InhAbs_CL;
+                avgAct_lightBlue(t,:)= (avgAKcs);
+                CL_vec_lightBlue(t)= CL_;
 
                 if mod(t,10)==0
                     disp(t)
@@ -1339,7 +1339,7 @@ for mods=1:modss
                 'thisW','thetaS', 'thisW_equalizedModel', 'InhibitionGain','theta',...
                 'theta_comp2','thisW_ActivityBasedComp','APLgains_model6','thisW_ActivityBasedComp_inhibitionPlast','theta_inhibitionPlast',...
                 'theta_Kenn','thisW_Kennedy','theta_Activity_homeo','classAction1','APLgains_noxjk','thisW_ActivityBasedComp_noxjk' ,'theta_comp2_noxjk',...
-                'APLgains_wHy','thisW_ActivityBasedComp_wHy','theta_comp2_wHy','PnToKc');
+                'APLgains_wHy','thisW_ActivityBasedComp_wHy','theta_comp2_wHy','PnToKc','initial_thisW_ActivityBasedComp');
             
             
             %                uncomment the following save statement to save the
@@ -1689,25 +1689,25 @@ for mods=1:modss
                 %% perfromance as a function of the strictness of the decision making
                 %% this strictness is dictated by C in the soft-max function.
                 %% so given the same fly, same task, and after learning measure the performance as f(c)
-                
+                %logLR(l_r)
                 for c=1:Crange
                     
                     
                     C=C_SoftMax*(10^c);
                     
-                    [acc,accEq,accEq2_noxjk,accEq2, accEq2_wHy,accKenn,accInhPlast,accThetaHomeo]=testingModels_accuracies(C,WopAllOdours,WopAllOdoursEqualized, WopAllOdoursEqualizedComp2_noxjk,WopAllOdoursEqualizedComp2,WopAllOdoursEqualizedComp2_wHy, WopAllOdoursKenn, WopAllOdoursInhPlast,...
-                        WopAllOdoursThetaHomeo, classAction1,numTrials,numtrainingSamples,Ytemp,YEqualizedtemp,Y_comp2_noxjktemp,Y_comp2temp,Y_comp2_wHytemp,Y_Kenntemp,Y_inhibPlasttemp,Y_theta_activity_homeotemp);
+                    %[acc,accEq,accEq2_noxjk,accEq2, accEq2_wHy,accKenn,accInhPlast,accThetaHomeo]=testingModels_accuracies(C,WopAllOdours,WopAllOdoursEqualized, WopAllOdoursEqualizedComp2_noxjk,WopAllOdoursEqualizedComp2,WopAllOdoursEqualizedComp2_wHy, WopAllOdoursKenn, WopAllOdoursInhPlast,...
+                    %    WopAllOdoursThetaHomeo, classAction1,numTrials,numtrainingSamples,Ytemp,YEqualizedtemp,Y_comp2_noxjktemp,Y_comp2temp,Y_comp2_wHytemp,Y_Kenntemp,Y_inhibPlasttemp,Y_theta_activity_homeotemp);
                     
-                    test_p_raEq(randomTrials,noiseScale, l_r,c)=accEq;
-                    test_p_ra(randomTrials,noiseScale, l_r,c)=acc;
-                    test_p_raEq2(randomTrials, l_r,c)=accEq2;
-                    test_p_raKenn(randomTrials,noiseScale, l_r,c)= accKenn;
-                    test_p_raInhPlast(randomTrials,noiseScale, l_r,c)= accInhPlast;
-                    test_p_ra_thetaHomeo(randomTrials,noiseScale, l_r,c)= accThetaHomeo;
-                    test_p_raEq2_noxjk(randomTrials,noiseScale, l_r,c)= accEq2_noxjk;
-                    test_p_raEq2_wHy(randomTrials,noiseScale, l_r,c)= accEq2_wHy;
+                    test_p_raEq(randomTrials,noiseScale, l_r,c)=testingModels_accuracies_function(C,WopAllOdoursEqualized,classAction1,numTrials,numtrainingSamples,YEqualizedtemp)
+                    test_p_ra(randomTrials,noiseScale, l_r,c)=testingModels_accuracies_function(C,WopAllOdours,classAction1,numTrials,numtrainingSamples,Ytemp)
+                    test_p_raEq2(randomTrials, l_r,c)=testingModels_accuracies_function(C,WopAllOdoursEqualizedComp2,classAction1,numTrials,numtrainingSamples,Y_comp2temp)
+                    test_p_raKenn(randomTrials,noiseScale, l_r,c)= testingModels_accuracies_function(C,WopAllOdoursKenn,classAction1,numTrials,numtrainingSamples,Y_Kenntemp)
+                    test_p_raInhPlast(randomTrials,noiseScale, l_r,c)= testingModels_accuracies_function(C,WopAllOdoursInhPlast,classAction1,numTrials,numtrainingSamples,Y_inhibPlasttemp)
+                    test_p_ra_thetaHomeo(randomTrials,noiseScale, l_r,c)= testingModels_accuracies_function(C,WopAllOdoursThetaHomeo,classAction1,numTrials,numtrainingSamples,Y_theta_activity_homeotemp)
+                    test_p_raEq2_noxjk(randomTrials,noiseScale, l_r,c)= testingModels_accuracies_function(C,WopAllOdoursEqualizedComp2_noxjk,classAction1,numTrials,numtrainingSamples,Y_comp2_noxjktemp)
+                    test_p_raEq2_wHy(randomTrials,noiseScale, l_r,c)= testingModels_accuracies_function(C,WopAllOdoursEqualizedComp2_wHy,classAction1,numTrials,numtrainingSamples,Y_comp2_wHytemp)
                     
-                    [accH1]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta,PNtrials, thetaH_Ftheta,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp);
+                    [accH1]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta,PNtrials, thetaH_Ftheta,InhibitionGain, APLgains,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp)
                     
                     test_p_raH_FixedTheta(randomTrials,noiseScale, l_r,c)=accH1;
                     
