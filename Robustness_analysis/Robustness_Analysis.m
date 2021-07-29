@@ -23,9 +23,9 @@ lrs=7;
 Crange=1;
 
 % start parallel local thread
-% p=parpool(6);
-% p.IdleTimeout = 1000;
-% parfevalOnAll(@maxNumCompThreads,0,6)
+p=parpool(6);
+p.IdleTimeout = 1000;
+parfevalOnAll(@maxNumCompThreads,0,6)
 
 
 C_SoftMax=1;
@@ -1022,6 +1022,12 @@ for randomTrials=1:ll
                 TunedKCs=size(find(abs(avgAKcs-A0)<epsilon));
                 
                 conditions= TunedKCs(1)>=1995 &( round(abs( round((InhAbs_CL/CL_),1) - 2.0),1) <=0.3 ) &( (abs(CL_-0.10)) <=0.015 );
+                if mod(iterr,10)==0
+                    disp('magenta');
+                    disp(iterr)
+                    disp(CL_)
+                    disp( TunedKCs(1))
+                end
                 
                 iterr=iterr+1;
                 
@@ -1167,6 +1173,12 @@ for randomTrials=1:ll
                 
                 conditions= all(abs(avgAKcs-A0)<epsilon)  &( (abs(round(CL_,3)-0.10)) <=0.015) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.3 );
                 
+                if mod(iterr,10)==0
+                    disp('green');
+                    disp(iterr)
+                    disp(CL_)
+                    disp(nnz(abs(avgAKcs-A0)<epsilon))
+                end
                 
                 iterr=iterr+1;
                 avgact_trace(:,t)=avgAKcs;
