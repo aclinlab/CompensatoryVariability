@@ -13,7 +13,8 @@ A=zeros(n,odors*numtrainingSamples);
 Y_d=zeros(n,odors*numtrainingSamples);
 Y_=[];
 codingLevelDummy=[];
-
+tic
+t=1;
 while(~conditions)
     
     
@@ -94,7 +95,16 @@ while(~conditions)
     
     conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
     
+    if mod(t,10)==0
+        disp('tune noxjk on training');
+        disp(t)
+        disp(CL_);
+        disp(nnz(abs(avgAKcs-A0)<epsilon))
+    end
+    t=t+1;
     
 end
 
 theta_comp2_noxjk_tuneis_train=(C_.*theta_comp2_noxjk_tuneis_train);
+toc
+disp('finished tune noxjk on training');
