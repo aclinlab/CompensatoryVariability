@@ -1191,8 +1191,9 @@ for mods=1:modss
                 avgAct(t,:)= (avgAKcs);
                 CL_vec(t)= CL_;
                 if mod(t,10)==0
-                    size(find(abs(avgAKcs-A0)>epsilon))
-                    CL_
+                    disp(t)
+                    disp(length(find(abs(avgAKcs-A0)>epsilon)))
+                    disp(CL_)
                 end
                 t=t+1;
             end
@@ -1317,8 +1318,9 @@ for mods=1:modss
                 avgAct(t,:)= (avgAKcs);
                 CL_vec(t)= CL_;
                 if mod(t,10)==0
-                    size(find(abs(avgAKcs-A0)>epsilon))
-                    CL_
+                    disp(t)
+                    disp(length(find(abs(avgAKcs-A0)>epsilon)))
+                    disp(CL_)
                 end
                 t=t+1;
                 
@@ -1332,7 +1334,7 @@ for mods=1:modss
             %                save the parameters for each fly, connectivity weights,
             %                spiking thresholds and inhibition Gains in all the models
             
-            save( strcat(CurrDir,'/CodeVers2.1/TunedFlies_allModels_oldOdors_with_round',['_fly_wNoise',num2str(randomTrials),num2str(noiseScale)]) ,'APLgains',...
+            save( strcat('TunedFlies_allModels_oldOdors_with_round',['_fly_wNoise',num2str(randomTrials),num2str(noiseScale)]) ,'APLgains',...
                 'PNtrials','thisW_HomogModel','thetaH_Ftheta', ...
                 'thisW','thetaS', 'thisW_equalizedModel', 'InhibitionGain','theta',...
                 'theta_comp2','thisW_ActivityBasedComp','APLgains_model6','thisW_ActivityBasedComp_inhibitionPlast','theta_inhibitionPlast',...
@@ -1728,7 +1730,7 @@ for mods=1:modss
 end
 
 %% save the following in the MATLAB current directory.
-cd CodeVers2.1
+% cd CodeVers2.1
 %% save the models' accuracy scores:
 save('test_p_ra_withround_oldOdors.mat','test_p_ra');
 save('test_p_raEq_withround_oldOdors.mat','test_p_raEq');
