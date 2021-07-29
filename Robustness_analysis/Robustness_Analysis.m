@@ -726,8 +726,8 @@ for randomTrials=1:ll
             toc
             disp('blue model done');
             
-            tic
             Tune_darkBlueModel_on_trainingData;
+            tic
             
             %% tuning the input PN to KC synaptic weights using the rule
             %% with the extra <xjk>_k factor, i.e. each PN-KC input is tuned individually
@@ -1199,14 +1199,14 @@ for randomTrials=1:ll
             %% uncomment if to: save the tuned parameters for each fly, in each tuning phase,
             %% for all the models:
             
-            %                 if(odors==size(indexTrainingOdors,1))
-            %                save( strcat('/home/nadayehia/Documents/MATLAB/robustnessTests/robustnessTest_tunedSubgroup_trainedAllOtherGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale)]) , 'thisW_HomogModel','APLgains',...
-            %                'thetaH_Ftheta','thisW_Kennedy', 'thisW','theta', 'thetaS', 'theta_Activity_homeo','InhibitionGain','thisW_equalizedModel','PNtrials_tune_train','PNtrials','theta_comp2','thisW_ActivityBasedComp','theta_inhibitionPlast','APLgains_model6','thisW_ActivityBasedComp_inhibitionPlast');
-            %
-            %                 save( strcat('/home/nadayehia/Documents/MATLAB/robustnessTests/robustnessTest_tuned_and_trained_onSameGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale)]) , 'thisW_HomogModel','APLgains_tune_is_train',...
-            %                'thetaH_Ftheta_tune_is_train','thisW_Kennedy', 'thisW','theta_tune_is_train', 'thetaS_tune_is_train', 'theta_Activity_homeo_tune_is_train','InhibitionGain_tune_is_train','thisW_equalizedModel_tune_is_train','PNtrials_tune_train','theta_comp2_tune_is_train','thisW_ActivityBasedComp_tune_is_train','theta_inhibitionPlast_tune_is_train','APLgains_model6_tune_is_train','thisW_ActivityBasedComp_inhibitionPlast');
-            %
-            %                 end
+            if(odors==size(indexTrainingOdors,1))
+                save( strcat('/home/nadayehia/Documents/MATLAB/robustnessTests/robustnessTest_tunedSubgroup_trainedAllOtherGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale)]) , 'thisW_HomogModel','APLgains',...
+                    'thetaH_Ftheta','thisW_Kennedy', 'thisW','theta', 'thetaS', 'theta_Activity_homeo','InhibitionGain','thisW_equalizedModel','PNtrials_tune_train','PNtrials','theta_comp2','thisW_ActivityBasedComp','theta_inhibitionPlast','APLgains_model6','thisW_ActivityBasedComp_inhibitionPlast');
+                
+                save( strcat('/home/nadayehia/Documents/MATLAB/robustnessTests/robustnessTest_tuned_and_trained_onSameGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale)]) , 'thisW_HomogModel','APLgains_tune_is_train',...
+                    'thetaH_Ftheta_tune_is_train','thisW_Kennedy', 'thisW','theta_tune_is_train', 'thetaS_tune_is_train', 'theta_Activity_homeo_tune_is_train','InhibitionGain_tune_is_train','thisW_equalizedModel_tune_is_train','PNtrials_tune_train','theta_comp2_tune_is_train','thisW_ActivityBasedComp_tune_is_train','theta_inhibitionPlast_tune_is_train','APLgains_model6_tune_is_train','thisW_ActivityBasedComp_inhibitionPlast');
+                
+            end
             %% training and testing of the tuned models
             
             Activations=zeros(n,odors*numTrials);
