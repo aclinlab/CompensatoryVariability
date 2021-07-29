@@ -401,3 +401,36 @@ for randomTrials=1:numFlies
     end
     toc
 end
+
+
+%% save the following in the MATLAB current directory.
+% cd CodeVers2.1
+%% save the models' accuracy scores:
+save('test_p_ra_withround_oldOdors.mat','test_p_ra');
+save('test_p_raEq_withround_oldOdors.mat','test_p_raEq');
+save('test_p_raH_FixedTheta_withround_oldOdors.mat','test_p_raH_FixedTheta');
+save('test_p_raEq2_withround_oldOdors.mat','test_p_raEq2');
+save('test_p_raInhPlast_withround_oldOdors.mat','test_p_raInhPlast');
+save('test_p_ra_thetaHomeo_withround_oldOdors.mat','test_p_ra_thetaHomeo');
+save('test_p_raKenn_withround_oldOdors.mat','test_p_raKenn');
+save('test_p_raEq2_noxjk_withround_oldOdors.mat','test_p_raEq2_noxjk');
+save('test_p_raEq2_wHy_withround_oldOdors.mat','test_p_raEq2_wHy');
+
+%% save the models' dimensionality
+% save('dim_S.mat','dim_S');
+% save('dim_HF.mat','dim_HF');
+% save('dim_C.mat','dim_C');
+% save('dim_C2.mat','dim_C2');
+% save('dim_C2_noxjk.mat','dim_C2_noxjk');
+% save('dim_C2_wHY.mat','dim_C2_wHY');
+% save('dim_Kenn.mat','dim_Kenn');
+% save('dim_InhPlast.mat','dim_InhPlast');
+% save('dim_theta_Activity_homeo.mat','dim_theta_Activity_homeo');
+
+%% save the main models' lifetime sparsity levels
+save('H_LTSpar_withround_oldOdors.mat','H_LTSpar');
+save('S_LTSpar_withround_oldOdors.mat','S_LTSpar');
+save('Eq_LTSpar_withround_oldOdors.mat','Eq_LTSpar');
+save('Eq2_noxjk_LTSpar_withround_oldOdors.mat','Eq2_noxjk_LTSpar');
+save('ThetaHomeo_LTSpar_withround_oldOdors.mat','ThetaHomeo_LTSpar');
+save('InhPlast_LTSpar_withround_oldOdors.mat','InhPlast_LTSpar');
