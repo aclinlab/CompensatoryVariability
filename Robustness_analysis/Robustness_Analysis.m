@@ -23,9 +23,9 @@ lrs=7;
 Crange=1;
 
 % start parallel local thread
-p=parpool(6);
-p.IdleTimeout = 1000;
-parfevalOnAll(@maxNumCompThreads,0,6)
+% p=parpool(6);
+% p.IdleTimeout = 1000;
+% parfevalOnAll(@maxNumCompThreads,0,6)
 
 
 C_SoftMax=1;
@@ -364,10 +364,11 @@ for randomTrials=1:ll
                     INHAbs_CLP_tune_train(1)=InhAbs_CL;
                     %APLgainP_tune_train(2)=APLgainP_tune_train_H;
                     
-                    InhibitionGain_tune_train(1)=InhibitionGain_tune_is_train
+                    InhibitionGain_tune_train(1)=InhibitionGain_tune_is_train;
                     
-                    theta_tune_train(1)=theta_tune_is_train;
-                    thisW_equalizedModel_tune_train(1) = thisW_equalizedModel_tune_is_train;
+                    
+                    theta_tune_train{1}=theta_tune_is_train;
+                    thisW_equalizedModel_tune_train{1} = thisW_equalizedModel_tune_is_train;
                     
                     
                     %% for the random model:
@@ -632,6 +633,7 @@ for randomTrials=1:ll
             Y_=[];
             codingLevelDummy=[];
             
+            t=1;
             while(~conditions)
                 
                 
@@ -686,7 +688,7 @@ for randomTrials=1:ll
                 thisW_ActivityBasedComp_noxjk= thisW_ActivityBasedComp_noxjk-(0.05).*((1.*(mask.*errorInActivity)));
                 
                 %catch the -ve weights values
-                if (~isempty(find(isinf(thisW_ActivityBasedComp) )))
+                if (~isempty(find(isinf(thisW_ActivityBasedComp_noxjk) )))
                     g=1;
                 end
                 thisW_ActivityBasedComp_noxjk(find(thisW_ActivityBasedComp_noxjk<0))=0;
@@ -706,6 +708,12 @@ for randomTrials=1:ll
                     
                 end
                 CL_=mean(codingLevelDummy);
+                if mod(t,10)==0
+                    disp('blue');
+                    disp(CL_)
+                    disp(nnz(abs(avgAKcs-A0)<epsilon))
+                end
+                t=t+1;
                 
                 conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
                 
@@ -715,6 +723,10 @@ for randomTrials=1:ll
             % tuning the input weights on the same odors that would
             % be in the training phase; a familiar environment
             
+            toc
+            disp('blue model done');
+            
+            tic
             Tune_darkBlueModel_on_trainingData;
             
             %% tuning the input PN to KC synaptic weights using the rule
@@ -749,6 +761,7 @@ for randomTrials=1:ll
             Conn(find(thisW_ActivityBasedComp))=1;
             C_=1;
             
+            t=1;
             while(~conditions)
                 
                 
@@ -838,6 +851,12 @@ for randomTrials=1:ll
                 CL_=mean(codingLevelDummy);
                 avgAKcs= mean(Y_,2);
                 
+                if mod(t,10)==0
+                    disp('dark blue');
+                    disp(CL_)
+                    disp(nnz(abs(avgAKcs-A0)<epsilon))
+                end
+                t=t+1;
                 
                 conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.1 ) &( (abs(CL_-0.10)) <=0.01 );
                 
@@ -847,6 +866,10 @@ for randomTrials=1:ll
             theta_comp2=(C_.*theta_comp2);
             C_1=1;
             theta_comp2_tune_is_train= theta_comp2_0;
+            toc
+            disp('dark blue done');
+            
+            tic
             % tuning the input weights on the same odors that would
             % be in the training phase; a familiar environment
             Tune_Homeostatic_Model_on_trainingData;
@@ -856,6 +879,7 @@ for randomTrials=1:ll
             end
             
             toc
+            disp('Tune_Homeostatic_Model_on_trainingData done');
             
             
             tic
