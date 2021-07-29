@@ -12,7 +12,7 @@ A0=(0.51)*ones(n,1);
 epsilon= A0(1)*0.07;
 conditions=0;
 
-
+t=1;
 while(~conditions)
     
     
@@ -141,6 +141,13 @@ while(~conditions)
     CL_=mean(codingLevel);
     avgAKcs= mean(Y_d,2);
     
+    if mod(t,10)==0
+        disp('tune homeostatic on training');
+        disp(t)
+        disp(CL_);
+        disp(nnz(abs(avgAKcs-A0)<epsilon))
+    end
+    t=t+1;
     
     conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.1 ) &( (abs(CL_-0.10)) <=0.005 );
     
@@ -149,3 +156,5 @@ while(~conditions)
 end
 
 theta_comp2_tune_is_train=(C_1.*theta_comp2_tune_is_train);
+toc
+disp('finished Homeostatic model on training')

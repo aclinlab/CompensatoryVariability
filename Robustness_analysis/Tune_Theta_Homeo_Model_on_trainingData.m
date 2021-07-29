@@ -1,3 +1,4 @@
+tic
 A=zeros(n,odorsTuning_training*numtrainingSamples);
 Y_d=zeros(n,odorsTuning_training*numtrainingSamples);
 
@@ -123,7 +124,14 @@ while(~conditions)
     TunedKCs=size(find(abs(avgAKcs-A0)<epsilon));
     
     conditions=  TunedKCs(1)>=1995 &( abs( (InhAbs_CL/CL_) - 2.0)<=0.3 ) &( (abs(CL_-0.10)) <=0.015 );
-    
+    if mod(iterr,10)==0
+        disp('tune thetahomeo on training');
+        disp(iterr)
+        disp(CL_);
+        disp(InhAbs_CL)
+        disp(nnz(abs(avgAKcs-A0)<epsilon))
+    end
+
     iterr=iterr+1;
     
     
@@ -131,3 +139,5 @@ while(~conditions)
 end
 
 theta_Activity_homeo_tune_is_train=C_1.*theta_Activity_homeo_tune_is_train;
+toc
+disp('finished tune thetahomeo on training');

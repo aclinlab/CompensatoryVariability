@@ -1,4 +1,4 @@
-
+tic
 if (tune~=3)
     A0=(0.4).*ones(n,1);
     epsilon= A0(1)*0.07;
@@ -124,9 +124,13 @@ while(~conditions)
     
     conditions=  all((abs(avgAKcs-A0)<epsilon)) &( (abs(round(CL_,3)-0.10)) <=0.015) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.4 );
     
-    CL_
-    InhAbs_CL
-    size(find(abs(avgAKcs-A0)>epsilon))
+    if mod(iterr,10)==0
+        disp('tune homeostatic on training');
+        disp(iterr)
+        disp(CL_);
+        disp(InhAbs_CL)
+        disp(nnz(abs(avgAKcs-A0)<epsilon))
+    end
     avgActTrace(:,iterr)=avgAKcs;
     
     iterr=iterr+1;
@@ -136,3 +140,5 @@ end
 Clevels_tune_is_train (end+1)=CL_;
 INHAbs_CL_tune_is_train(end+1)=InhAbs_CL;
 theta_inhibitionPlast_tune_is_train=(C_1.*theta_inhibitionPlast_tune_is_train);
+toc
+disp('finished inhplast on training');
