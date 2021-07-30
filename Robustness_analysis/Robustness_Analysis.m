@@ -1090,7 +1090,7 @@ for randomTrials=1:ll
             
             iterr=1;
             
-            A0=(0.3).*ones(n,1);
+            A0=(0.32).*ones(n,1);
             
             epsilon= A0(1)*0.07;
             
