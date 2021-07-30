@@ -1056,7 +1056,7 @@ for randomTrials=1:ll
             APLtrajectory=zeros(2000,1);
             CLtrajectory=[];
             AvgAKCstrajectory=zeros(2000,1);
-            C_=1;
+            C_=10;
             T=1;
             theta_inhibitionPlast_0= abs(normrnd(T,T*(5.6/21.5),[n 1])); %% avoid negative values of theta
             theta_inhibitionPlast_0(theta_inhibitionPlast_0>70)=70;
@@ -1076,7 +1076,7 @@ for randomTrials=1:ll
             
             iterr=1;
             
-            A0=(0.2).*ones(n,1);
+            A0=(0.3).*ones(n,1);
             
             epsilon= A0(1)*0.07;
             
@@ -1108,7 +1108,7 @@ for randomTrials=1:ll
                 depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_inhibitionPlast,1,odorsTuning*numtrainingSamples));
                 
                 % decaying learning rate
-                eta=5*(0.7^(floor(iterr/1000)));
+                eta=15; %5; %*(0.7^(floor(iterr/1000)));
                 
                 Grad= ((InhAbs_CL)-0.20)*(1/(n*odorsTuning*numtrainingSamples))*(sum(depsi1_dtheta(:) ));
                 
@@ -1144,8 +1144,8 @@ for randomTrials=1:ll
                 
                 dYik_dalphai= -(repmat(dAct_dalpha,n,1));
                 
-                eta_o1= 0.01;
-                eta_o2=5e-7;
+                eta_o1= 0.15; %0.01;
+                eta_o2= 1e-6; %5e-7;
                 
                 Grad_alpha1= ( ((eta_o1)) .*((CL_)-0.10)*(1/(n*odorsTuning*numtrainingSamples)).*(sum(dsig_dalpha,2)) ) ;
                 Grad_alpha2=( eta_o2.* (errorInActivity).*(D_yj_alphaj) ) ;
@@ -1175,12 +1175,13 @@ for randomTrials=1:ll
                 avgAKcs=mean(Y_,2);
                 
                 
-                conditions= all(abs(avgAKcs-A0)<epsilon)  &( (abs(round(CL_,3)-0.10)) <=0.015) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.3 );
+                conditions= all(abs(avgAKcs-A0)<epsilon)  &( (abs(round(CL_,3)-0.10)) <=0.015) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.2 );
                 
                 if mod(iterr,10)==0
                     disp('green');
                     disp(iterr)
                     disp(CL_)
+                    disp(InhAbs_CL)
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
                 end
                 
