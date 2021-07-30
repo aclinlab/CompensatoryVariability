@@ -23,10 +23,9 @@ lrs=7;
 Crange=1;
 
 % start parallel local thread
-% p=parpool(6);
-% p.IdleTimeout = 1000;
-% parfevalOnAll(@maxNumCompThreads,0,6)
-
+p=parpool(6);
+p.IdleTimeout = 1000;
+parfevalOnAll(@maxNumCompThreads,0,6)
 
 C_SoftMax=1;
 NScales=1;
@@ -612,7 +611,7 @@ for randomTrials=1:ll
                 end
             end
             
-            toc
+            t_cyan_red_black=toc;
             
             tic
             %% optimization for the activity dependent models
@@ -737,7 +736,7 @@ for randomTrials=1:ll
             % tuning the input weights on the same odors that would
             % be in the training phase; a familiar environment
             
-            toc
+            tBlue=toc;
             disp('blue model done');
             
             Tune_darkBlueModel_on_trainingData;
@@ -867,7 +866,9 @@ for randomTrials=1:ll
                 
                 if mod(t,10)==0
                     disp('dark blue');
+                    disp(t)
                     disp(CL_)
+                    disp(InhAbs_CL);
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
                 end
                 t=t+1;
@@ -880,7 +881,7 @@ for randomTrials=1:ll
             theta_comp2=(C_.*theta_comp2);
             C_1=1;
             theta_comp2_tune_is_train= theta_comp2_0;
-            toc
+            t_darkblue=toc;
             disp('dark blue done');
             
             tic
@@ -892,7 +893,7 @@ for randomTrials=1:ll
                 error('the theta in the homogeneous model cant be negative')
             end
             
-            toc
+            t_darkblue_tune_is_train=toc;
             disp('Tune_Homeostatic_Model_on_trainingData done');
             
             
@@ -1060,7 +1061,7 @@ for randomTrials=1:ll
             % the odors that will be then used for training too.
             Tune_Theta_Homeo_Model_on_trainingData;
             
-            toc
+            t_magenta_unseen_and_seen_ododrs=toc;
             
             tic
             
@@ -1215,7 +1216,7 @@ for randomTrials=1:ll
             % the odors that will be then used for training too.
             Tune_InhPlast_Model_on_trainingData;
             
-            toc
+            t_greenmodel_unseen_and_seen_odors=toc;
             
             
             %% if the loops broke without the constraints being statisfied. then
@@ -1715,7 +1716,7 @@ for randomTrials=1:ll
             
         end
         
-        
+     disp (strcat('tune',num2str(tune)))   
     end
 end
 

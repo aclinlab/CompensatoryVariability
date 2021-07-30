@@ -11,8 +11,8 @@ Conn(find(thisW_ActivityBasedComp_tune_is_train))=1;
 A0=(0.51)*ones(n,1);
 epsilon= A0(1)*0.07;
 conditions=0;
-APLgains_tune_is_theta(3) = 4.5e-5;
-C_1 = 14;
+% APLgains_tune_is_train(3) = 4.5e-5;
+% C_1 = 1;
 
 t=1;
 while(~conditions)
@@ -147,9 +147,11 @@ while(~conditions)
         disp('tune homeostatic on training');
         disp(t)
         disp(CL_);
+        disp(InhAbs_CL);
         disp(nnz(abs(avgAKcs-A0)<epsilon))
     end
     t=t+1;
+    avgact_trace(:,t)=avgAKcs;
     
     conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.1 ) &( (abs(CL_-0.10)) <=0.005 );
     
