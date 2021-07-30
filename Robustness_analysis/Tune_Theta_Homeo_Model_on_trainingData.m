@@ -6,6 +6,8 @@ iterr=1;
 codingLevelDummy=[];
 conditions=0;
 cw_=1;
+C_ = 1.3;
+APLgains_tune_is_train(4) = 6e-5;
 
 if(tune~=3)
     A0=(0.4).*ones(n,1);
