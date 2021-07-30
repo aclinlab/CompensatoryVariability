@@ -142,9 +142,9 @@ for randomTrials=1:ll
             thisW_equalizedModel_0(whichPN,k)= thisW_equalizedModel_0(whichPN,k)+thisWeight_equalizedModel;
             initial_thisW_ActivityBasedComp(whichPN,k)= initial_thisW_ActivityBasedComp(whichPN,k)+ thisWeight_activityComp;
             
-            thisW_=(5+rand(1));
-            thisW_ActivityBasedComp_noxjk_0(whichPN,k)= thisW_ActivityBasedComp_noxjk_0(whichPN,k)+ thisW_;
-            
+%             thisW_=(5+rand(1));
+%             thisW_ActivityBasedComp_noxjk_0(whichPN,k)= thisW_ActivityBasedComp_noxjk_0(whichPN,k)+ thisW_;
+%             
         end
     end
     
@@ -626,8 +626,8 @@ for randomTrials=1:ll
             
             theta_comp2_noxjk=theta_comp2_noxjk_0;
             theta_comp2_noxjk_tuneis_train=theta_comp2_noxjk_0;
-            thisW_ActivityBasedComp_noxjk=thisW_ActivityBasedComp_noxjk_0;
-            thisW_ActivityBasedComp_noxjk_tuneis_train=thisW_ActivityBasedComp_noxjk_0;
+            thisW_ActivityBasedComp_noxjk=initial_thisW_ActivityBasedComp;
+            thisW_ActivityBasedComp_noxjk_tuneis_train=initial_thisW_ActivityBasedComp;
             Activations =zeros(n,odorsTuning*numtrainingSamples);
             ActivationsDummy= zeros(n, odorsTuning*numtrainingSamples);
             Conn=zeros(m,n);
@@ -1233,10 +1233,11 @@ for randomTrials=1:ll
             
             if(odors==size(indexTrainingOdors,1))
                 save( strcat('robustnessTest_tunedSubgroup_trainedAllOtherGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale)]) , 'thisW_HomogModel','APLgains',...
-                    'thetaH_Ftheta','thisW_Kennedy', 'thisW','theta', 'thetaS', 'theta_Activity_homeo','InhibitionGain','thisW_equalizedModel','PNtrials_tune_train','PNtrials','theta_comp2','thisW_ActivityBasedComp','theta_inhibitionPlast','APLgains_model6','thisW_ActivityBasedComp_inhibitionPlast');
+                    'thetaH_Ftheta','thisW_Kennedy', 'thisW','theta', 'thetaS', 'theta_Activity_homeo','InhibitionGain','thisW_equalizedModel','PNtrials_tune_train','PNtrials','theta_comp2','thisW_ActivityBasedComp','theta_inhibitionPlast','APLgains_model6','thisW_ActivityBasedComp_inhibitionPlast','theta_comp2_noxjk','thisW_ActivityBasedComp_noxjk','APLgains_noxjk');
                 
                 save( strcat('robustnessTest_tuned_and_trained_onSameGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale)]) , 'thisW_HomogModel','APLgains_tune_is_train',...
-                    'thetaH_Ftheta_tune_is_train','thisW_Kennedy', 'thisW','theta_tune_is_train', 'thetaS_tune_is_train', 'theta_Activity_homeo_tune_is_train','InhibitionGain_tune_is_train','thisW_equalizedModel_tune_is_train','PNtrials_tune_train','theta_comp2_tune_is_train','thisW_ActivityBasedComp_tune_is_train','theta_inhibitionPlast_tune_is_train','APLgains_model6_tune_is_train','thisW_ActivityBasedComp_inhibitionPlast');
+                    'thetaH_Ftheta_tune_is_train','thisW_Kennedy', 'thisW','theta_tune_is_train', 'thetaS_tune_is_train', 'theta_Activity_homeo_tune_is_train','InhibitionGain_tune_is_train','thisW_equalizedModel_tune_is_train','PNtrials_tune_train','theta_comp2_tune_is_train','thisW_ActivityBasedComp_tune_is_train','theta_inhibitionPlast_tune_is_train','APLgains_model6_tune_is_train','thisW_ActivityBasedComp_inhibitionPlast','thisW_ActivityBasedComp_noxjk_tuneis_train',...
+                    'theta_comp2_noxjk_tuneis_train','APLgains_noxjk_tuneis_train');
                 
             end
             %% training and testing of the tuned models
