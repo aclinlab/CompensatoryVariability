@@ -35,7 +35,7 @@ while(~conditions)
     
     depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_inhibitionPlast_tune_is_train,1,odorsTuning_training*numtrainingSamples));
     
-    eta=1*(0.7^(floor(iterr/2000)));
+    eta=15; %*(0.7^(floor(iterr/2000)));
     
     Grad= ((InhAbs_CL)-0.20)*(1/(n*odorsTuning_training*numtrainingSamples))*(sum(depsi1_dtheta(:) ));
     
@@ -76,8 +76,8 @@ while(~conditions)
     
     dYik_dalphai= -(repmat(dAct_dalpha,n,1));
     
-    eta_o1= 0.002;
-    eta_o2= 0.00000005;
+    eta_o1= 0.15; %0.002;
+    eta_o2= 1e-6; %0.00000005;
     
     Grad_alpha1= ( ((eta_o1)) .*((CL_)-0.10)*(1/(n*odorsTuning_training*numtrainingSamples)).*(sum(dsig_dalpha,2)) );
     
@@ -122,10 +122,10 @@ while(~conditions)
     %                          TunedKCs= size(find((abs(avgAKcs-A0)<epsilon)));(TunedKCs(1)>=1995)
     %
     
-    conditions=  all((abs(avgAKcs-A0)<epsilon)) &( (abs(round(CL_,3)-0.10)) <=0.015) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.4 );
+    conditions=  all((abs(avgAKcs-A0)<epsilon)) &( (abs(round(CL_,3)-0.10)) <=0.01) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.2 );
     
     if mod(iterr,10)==0
-        disp('tune homeostatic on training');
+        disp('tune inhplast on training');
         disp(iterr)
         disp(CL_);
         disp(InhAbs_CL)
