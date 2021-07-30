@@ -21,7 +21,7 @@ eta_0=0.05;
 drop_1=0.7;
 iterrDrop_1=1000;
 
-eta_gradAct_theta_0=0.05;
+eta_gradAct_theta_0=0.15;%0.05;
 drop=0.7;
 iterDrop=1000;
 
