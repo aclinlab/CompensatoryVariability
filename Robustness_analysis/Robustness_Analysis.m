@@ -905,19 +905,19 @@ for randomTrials=1:ll
             A=zeros(n,odorsTuning*numtrainingSamples);
             Y_d=zeros(n,odorsTuning*numtrainingSamples);
             Y_= zeros(n,odorsTuning*numtrainingSamples);
-            A0=(0.2).*ones(n,1);
+            A0=(0.3).*ones(n,1);
             epsilon= A0(1)*0.07;
             C_=1;
             t=1;
             iterr=1;
-            eta_gradAct_theta_0=0.05;
+            eta_gradAct_theta_0=0.15;%0.05;
             drop=0.7;
             iterDrop=1000;
             cw=1;
             
             eta_0=0.05;
             drop_1=0.5;
-            iterrDrop_1=500;
+            iterrDrop_1=1000;
             
             codingLevelDummy=[];
             
@@ -946,7 +946,7 @@ for randomTrials=1:ll
                 % we are closer to the minima and hence should
                 % update the APL_gain less.
                 
-                eta_2=0.000000005*(0.7^(floor(iterr/200)));
+                eta_2=0.000000005*(0.7^(floor(iterr/1000)));
                 for trial = 1:(odorsTuning*numtrainingSamples)
                     Activations(:,trial) = (cw.*thisW_Kennedy)'*PNtrials(:,trial);
                     Y_(:,trial)=(( Activations(:,trial)-(APLgains(4))*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_Activity_homeo))>0 ).*( Activations(:,trial)-APLgains(4)*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_Activity_homeo));
@@ -981,7 +981,7 @@ for randomTrials=1:ll
                     Act_minus_inhibition(:,trial)=(Activations(:,trial)-(APLgains(4))*repmat(sum(Activations(:,trial),1),n,1));
                     
                 end
-                eta_gradAct_theta=eta_gradAct_theta_0*(drop^floor(iterr/iterDrop));
+                eta_gradAct_theta=eta_gradAct_theta_0; %*(drop^floor(iterr/iterDrop));
                 avgAKcs=mean(Y_,2);
                 
                 errorInActivity=(avgAKcs-A0);
@@ -1024,9 +1024,13 @@ for randomTrials=1:ll
                 conditions= TunedKCs(1)>=1995 &( round(abs( round((InhAbs_CL/CL_),1) - 2.0),1) <=0.3 ) &( (abs(CL_-0.10)) <=0.015 );
                 if mod(iterr,10)==0
                     disp('magenta');
+                    %disp(eta)
+                    %disp(eta_2)
                     disp(iterr)
                     disp(CL_)
+                    disp(InhAbs_CL)
                     disp( TunedKCs(1))
+                    
                 end
                 
                 iterr=iterr+1;
