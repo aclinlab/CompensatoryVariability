@@ -24,6 +24,7 @@ iterrDrop_1=1000;
 eta_gradAct_theta_0=0.15;%0.05;
 drop=0.7;
 iterDrop=1000;
+avgact_trace=[];
 
 while(~conditions)
     
@@ -131,6 +132,7 @@ while(~conditions)
         disp(InhAbs_CL)
         disp(nnz(abs(avgAKcs-A0)<epsilon))
     end
+    avgact_trace(:,iterr) = avgAKcs;
 
     iterr=iterr+1;
     
