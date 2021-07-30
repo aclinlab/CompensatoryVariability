@@ -593,10 +593,24 @@ for randomTrials=1:ll
             thisW_equalizedModel=thisW_equalizedModel{1};
             
             theta_tune_is_train=theta_tune_train{1};
+            if iscell(theta_tune_is_train)
+                if length(theta_tune_is_train)==1
+                    theta_tune_is_train = theta_tune_is_train{1};
+                else
+                    error('something is wrong with theta_tune_is_train')
+                end
+            end
+            
             thetaH_Ftheta_tune_is_train=thetaH_Ftheta_tune_train{3};
             thetaS_tune_is_train=thetaS_tune_train{2};
             thisW_equalizedModel_tune_is_train=thisW_equalizedModel_tune_train{1};
-            
+            if iscell(thisW_equalizedModel_tune_is_train)
+                if length(thisW_equalizedModel_tune_is_train)==1
+                    thisW_equalizedModel_tune_is_train = thisW_equalizedModel_tune_is_train{1};
+                else
+                    error('something is wrong with thisW_equalizedModel_tune_is_train')
+                end
+            end
             
             toc
             
@@ -1051,7 +1065,7 @@ for randomTrials=1:ll
             tic
             
             
-            %% tuning the input inhibitory weights, APL->KC input weights
+            % tuning the input inhibitory weights, APL->KC input weights
             
             APLtrajectory=zeros(2000,1);
             CLtrajectory=[];
