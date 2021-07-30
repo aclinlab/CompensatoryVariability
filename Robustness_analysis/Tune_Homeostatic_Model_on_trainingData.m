@@ -11,6 +11,8 @@ Conn(find(thisW_ActivityBasedComp_tune_is_train))=1;
 A0=(0.51)*ones(n,1);
 epsilon= A0(1)*0.07;
 conditions=0;
+APLgains_tune_is_theta(3) = 4.5e-5;
+C_1 = 14;
 
 t=1;
 while(~conditions)
