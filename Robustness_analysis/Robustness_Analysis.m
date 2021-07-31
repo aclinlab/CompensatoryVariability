@@ -23,7 +23,7 @@ lrs=7;
 Crange=1;
 
 % start parallel local thread
-p=parpool(6);
+%p=parpool(6);
 p.IdleTimeout = 1000;
 parfevalOnAll(@maxNumCompThreads,0,6)
 
