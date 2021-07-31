@@ -87,7 +87,7 @@ while(~conditions)
     
     %                          eta_gradActiv_alpha=eta_gradAct_alpha_0*(drop^(floor(iterr/iterDrop)));
     
-    APLgains_model6_tune_is_train= APLgains_model6_tune_is_train- 0.001.*((Grad_alpha));
+    APLgains_model6_tune_is_train= APLgains_model6_tune_is_train- 0.001.*((Grad_alpha+ ((0.000000001)*randn(1)) ));
     
     
     %% check constraints
