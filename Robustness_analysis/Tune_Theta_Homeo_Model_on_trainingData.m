@@ -47,7 +47,7 @@ while(~conditions)
     depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_Activity_homeo_tune_is_train,1,odorsTuning_training*numtrainingSamples));
     
     %               *mean(Y_d(:));
-    eta=eta_0*(drop_1^(floor(iterr/iterrDrop_1)));
+    eta=eta_0; %*(drop_1^(floor(iterr/iterrDrop_1)));
     
     
     Grad= ((InhAbs_CL)-0.20)*(1/(n*odorsTuning_training*numtrainingSamples))*(sum(depsi1_dtheta(:) ));
