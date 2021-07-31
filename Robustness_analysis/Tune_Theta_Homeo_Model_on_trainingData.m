@@ -98,7 +98,7 @@ while(~conditions)
     avgAKcs=mean(Y_,2);
     
     errorInActivity=(avgAKcs-A0);
-    adEta=eta_gradAct_theta_0*(drop^(floor(iterr/iterDrop)));
+    adEta=eta_gradAct_theta_0; %*(drop^(floor(iterr/iterDrop)));
     theta_Activity_homeo_tune_is_train= theta_Activity_homeo_tune_is_train-( ((eta_gradAct_theta_0).*((-1.*C_1.*(errorInActivity)))));
     theta_Activity_homeo_tune_is_train(theta_Activity_homeo_tune_is_train<0)=0;
     
