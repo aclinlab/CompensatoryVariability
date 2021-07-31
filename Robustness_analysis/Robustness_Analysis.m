@@ -1159,7 +1159,7 @@ for randomTrials=1:ll
                 
                 dYik_dalphai= -(repmat(dAct_dalpha,n,1));
                 
-                eta_o1= 0.15; %0.01;
+                eta_o1= 0.01;
                 eta_o2= 5e-7;%1e-6; %5e-7;
                 
                 Grad_alpha1= ( ((eta_o1)) .*((CL_)-0.10)*(1/(n*odorsTuning*numtrainingSamples)).*(sum(dsig_dalpha,2)) ) ;
