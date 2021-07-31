@@ -727,8 +727,8 @@ for randomTrials=1:ll
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
                 end
                 t=t+1;
-                
-                conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
+                TunedKCs= size(find((abs(avgAKcs-A0)<epsilon)));
+                conditions= TunedKCs(1)>=1995 &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
                 
             end
             
@@ -836,7 +836,7 @@ for randomTrials=1:ll
                 filt_Xjm= mean(filt_,3);
                 mask=filt_Xjm;
                 
-                thisW_ActivityBasedComp= thisW_ActivityBasedComp-(0.05).*((1.*(mask.*errorInActivity)));
+                thisW_ActivityBasedComp= thisW_ActivityBasedComp-(0.15).*((1.*(mask.*errorInActivity)));
                 
                 %catch the -ve weights values
                 if (~isempty(find(isinf(thisW_ActivityBasedComp) )))
@@ -863,17 +863,19 @@ for randomTrials=1:ll
                 end
                 CL_=mean(codingLevelDummy);
                 avgAKcs= mean(Y_,2);
-                
+                avgact_trace(:,t) = avgAKcs;
                 if mod(t,10)==0
                     disp('dark blue');
                     disp(t)
                     disp(CL_)
                     disp(InhAbs_CL);
+                    disp(max(avgAKcs))
+                    disp(min(avgAKcs))
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
                 end
                 t=t+1;
-                
-                conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.1 ) &( (abs(CL_-0.10)) <=0.01 );
+                TunedKCs= size(find((abs(avgAKcs-A0)<epsilon)));
+                conditions= TunedKCs(1)>=1995 &( abs( (InhAbs_CL/CL_) - 2.0)<0.1 ) &( (abs(CL_-0.10)) <=0.01 );
                 
             end
             Clevels(end+1)=CL_;
@@ -1159,7 +1161,7 @@ for randomTrials=1:ll
                 
                 dYik_dalphai= -(repmat(dAct_dalpha,n,1));
                 
-                eta_o1= 0.15; %0.01;
+                eta_o1= 0.01;
                 eta_o2= 5e-7;%1e-6; %5e-7;
                 
                 Grad_alpha1= ( ((eta_o1)) .*((CL_)-0.10)*(1/(n*odorsTuning*numtrainingSamples)).*(sum(dsig_dalpha,2)) ) ;
@@ -1189,8 +1191,8 @@ for randomTrials=1:ll
                 CL_=mean(codingLevelDummy);
                 avgAKcs=mean(Y_,2);
                 
-                
-                conditions= all(abs(avgAKcs-A0)<epsilon)  &( (abs(round(CL_,3)-0.10)) <=0.015) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.2 );
+                TunedKCs=size(find(abs(avgAKcs-A0)<epsilon));
+                conditions= TunedKCs(1)>=1995  &( (abs(round(CL_,3)-0.10)) <=0.015) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.2 );
                 
                 if mod(iterr,10)==0
                     disp('green');

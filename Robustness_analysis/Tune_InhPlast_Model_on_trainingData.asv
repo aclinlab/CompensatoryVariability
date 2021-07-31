@@ -121,6 +121,7 @@ while(~conditions)
     
     TunedKCs= size(find((abs(avgAKcs-A0)<epsilon)));
     %
+
     conditions=(TunedKCs(1)>=1995)  &( (abs(round(CL_,3)-0.10)) <=0.01) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.2 );
     
     if mod(iterr,10)==0
