@@ -949,7 +949,7 @@ for randomTrials=1:ll
                 depsi1_dy=(exp(0.9.*Y_d)./((1+exp(0.9.*Y_d)).^2));
                 depsi1_dy(isnan(depsi1_dy))=0;
                 depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_Activity_homeo,1,odorsTuning*numtrainingSamples));
-                eta= eta_0*(drop_1^(floor(iterr/iterrDrop_1)));
+                eta= eta_0; %*(drop_1^(floor(iterr/iterrDrop_1)));
                 Grad= ((InhAbs_CL)-0.20)*(1/(n*odorsTuning*numtrainingSamples))*(sum(depsi1_dtheta(:) ));
                 C_=C_- (eta*Grad);
                 if (C_<0)
@@ -961,7 +961,7 @@ for randomTrials=1:ll
                 % we are closer to the minima and hence should
                 % update the APL_gain less.
                 
-                eta_2=0.000000005*(0.7^(floor(iterr/1000)));
+                eta_2=0.000000005; %*(0.7^(floor(iterr/1000)));
                 for trial = 1:(odorsTuning*numtrainingSamples)
                     Activations(:,trial) = (cw.*thisW_Kennedy)'*PNtrials(:,trial);
                     Y_(:,trial)=(( Activations(:,trial)-(APLgains(4))*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_Activity_homeo))>0 ).*( Activations(:,trial)-APLgains(4)*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_Activity_homeo));
