@@ -836,7 +836,7 @@ for randomTrials=1:ll
                 filt_Xjm= mean(filt_,3);
                 mask=filt_Xjm;
                 
-                thisW_ActivityBasedComp= thisW_ActivityBasedComp-(0.05).*((1.*(mask.*errorInActivity)));
+                thisW_ActivityBasedComp= thisW_ActivityBasedComp-(0.15).*((1.*(mask.*errorInActivity)));
                 
                 %catch the -ve weights values
                 if (~isempty(find(isinf(thisW_ActivityBasedComp) )))
@@ -863,12 +863,14 @@ for randomTrials=1:ll
                 end
                 CL_=mean(codingLevelDummy);
                 avgAKcs= mean(Y_,2);
-                
+                avgact_trace(:,t) = avgAKcs;
                 if mod(t,10)==0
                     disp('dark blue');
                     disp(t)
                     disp(CL_)
                     disp(InhAbs_CL);
+                    disp(max(avgAKcs))
+                    disp(min(avgAKcs))
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
                 end
                 t=t+1;
