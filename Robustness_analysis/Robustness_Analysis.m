@@ -727,8 +727,8 @@ for randomTrials=1:ll
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
                 end
                 t=t+1;
-                
-                conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
+                TunedKCs= size(find((abs(avgAKcs-A0)<epsilon)));
+                conditions= TunedKCs(1)>=1995 &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
                 
             end
             
@@ -874,8 +874,8 @@ for randomTrials=1:ll
                     disp(nnz(abs(avgAKcs-A0)<epsilon))
                 end
                 t=t+1;
-                
-                conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.1 ) &( (abs(CL_-0.10)) <=0.01 );
+                TunedKCs= size(find((abs(avgAKcs-A0)<epsilon)));
+                conditions= TunedKCs(1)>=1995 &( abs( (InhAbs_CL/CL_) - 2.0)<0.1 ) &( (abs(CL_-0.10)) <=0.01 );
                 
             end
             Clevels(end+1)=CL_;
@@ -1191,8 +1191,8 @@ for randomTrials=1:ll
                 CL_=mean(codingLevelDummy);
                 avgAKcs=mean(Y_,2);
                 
-                
-                conditions= all(abs(avgAKcs-A0)<epsilon)  &( (abs(round(CL_,3)-0.10)) <=0.015) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.2 );
+                TunedKCs=size(find(abs(avgAKcs-A0)<epsilon));
+                conditions= TunedKCs(1)>=1995  &( (abs(round(CL_,3)-0.10)) <=0.015) & ( round( abs( ((InhAbs_CL/CL_)) - 2.0),1) <=0.2 );
                 
                 if mod(iterr,10)==0
                     disp('green');

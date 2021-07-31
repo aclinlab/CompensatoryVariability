@@ -152,8 +152,8 @@ while(~conditions)
     end
     t=t+1;
     avgact_trace(:,t)=avgAKcs;
-    
-    conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.1 ) &( (abs(CL_-0.10)) <=0.005 );
+    TunedKCs= size(find((abs(avgAKcs-A0)<epsilon)));
+    conditions= TunedKCs(1)>=1995 &( abs( (InhAbs_CL/CL_) - 2.0)<0.1 ) &( (abs(CL_-0.10)) <=0.005 );
     
     
     

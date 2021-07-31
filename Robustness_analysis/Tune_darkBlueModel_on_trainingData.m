@@ -93,7 +93,8 @@ while(~conditions)
     end
     CL_=mean(codingLevelDummy);
     
-    conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
+    TunedKCs= size(find((abs(avgAKcs-A0)<epsilon)));
+    conditions= TunedKCs(1)>=1995 &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
     
     if mod(t,10)==0
         disp('tune noxjk on training');
