@@ -910,7 +910,7 @@ for randomTrials=1:ll
             if(tune~=3)
                 thisW_Kennedy=5.5.*thisW_Kennedy_0;
             else
-                thisW_Kennedy= 4.5.*thisW_Kennedy_0;
+                thisW_Kennedy= 4.0.*thisW_Kennedy_0;
             end
             
             APLgains(4)=0;
