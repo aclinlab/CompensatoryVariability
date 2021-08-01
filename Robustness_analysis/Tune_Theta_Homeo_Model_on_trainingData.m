@@ -28,8 +28,11 @@ drop=0.7;
 iterDrop=1000;
 avgact_trace=[];
 
-while(~conditions)
+iter_till_exit=0;
+
+while(~conditions && (iter_till_exit<10000))
     
+    iter_till_exit=iter_till_exit+1;
     % with inhibition gain absent, make sure that
     % CL=20% with the random values for theta.
     for trial = 1:(odorsTuning_training*numtrainingSamples)
@@ -142,6 +145,3 @@ while(~conditions)
     
 end
 
-theta_Activity_homeo_tune_is_train=C_1.*theta_Activity_homeo_tune_is_train;
-toc
-disp('finished tune thetahomeo on training');

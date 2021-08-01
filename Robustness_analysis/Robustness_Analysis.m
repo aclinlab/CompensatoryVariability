@@ -645,11 +645,11 @@ for randomTrials=1:ll
             Y_d=zeros(n,odorsTuning*numtrainingSamples);
             Y_=[];
             codingLevelDummy=[];
-            
+            iter_till_exit=0;
             t=1;
-            while(~conditions)
+            while( (~conditions)&&(iter_till_exit<10000) )
                 
-                
+                iter_till_exit=iter_till_exit+1;
                 for trial = 1:(odorsTuning*numtrainingSamples)
                     
                     A(:,trial) = thisW_ActivityBasedComp_noxjk'*PNtrials(:,trial);
@@ -732,16 +732,53 @@ for randomTrials=1:ll
                 
             end
             
-            theta_comp2_noxjk=(C_.*theta_comp2_noxjk);
-            % tuning the input weights on the same odors that would
+            % rescue the initial states of the weights and fill the
+            % parameters to be tuned with NANs, failed to converge
+             if(iter_till_exit<10000)
+                 theta_comp2_noxjk=(C_.*theta_comp2_noxjk); 
+                 toc
+                 disp('blue model done');
+                 continue;
+             else
+                 disp('blue model failed to converge on unseen data');
+                 thisW_ActivityBasedComp_noxjk(find(thisW_ActivityBasedComp_noxjk))=nan;
+                 theta_comp2_noxjk=ones(2000,1).*nan;
+                 APLgains_noxjk=nan;
+                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_blue_unseenData'),'theta_comp2_noxjk_0','initial_thisW_ActivityBasedComp');
+                 
+             end
+
+            % rescue the initial states of the weights and fill the
+            % parameters to be tuned with NANs, failed to converge
+          
+            %% tuning the input weights on the same odors that would
+            % be in the training phase; a familiar environment
+           
+            Tune_darkBlueModel_on_trainingData;
+            
+            % rescue the initial states of the weights and fill the
+            % parameters to be tuned with NANs, failed to converge
+             if(iter_till_exit<10000)
+                theta_comp2_noxjk_tuneis_train=(C_.*theta_comp2_noxjk_tuneis_train);
+                toc
+                disp('finished tune noxjk on training');
+                 continue;
+             else
+                 disp('blue model failed to converge on training data');
+                 thisW_ActivityBasedComp_noxjk_tuneis_train(find(thisW_ActivityBasedComp_noxjk_tuneis_train))=nan;
+                 theta_comp2_noxjk_tuneis_train=ones(2000,1).*nan;
+                 APLgains_noxjk_tuneis_train=nan;
+                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_blue_trainingData'),'theta_comp2_noxjk_0','initial_thisW_ActivityBasedComp');
+                 
+             end
+
+            % rescue the initial states of the weights and fill the
+            % parameters to be tuned with NANs, failed to converge
+            
+          %% tuning the input weights on the same odors that would
             % be in the training phase; a familiar environment
             
-            tBlue=toc;
-            disp('blue model done');
-            
-            Tune_darkBlueModel_on_trainingData;
             tic
-            
             %% tuning the input PN to KC synaptic weights using the rule
             %% with the extra <xjk>_k factor, i.e. each PN-KC input is tuned individually
             
@@ -773,11 +810,11 @@ for randomTrials=1:ll
             Conn= zeros (m,n);
             Conn(find(thisW_ActivityBasedComp))=1;
             C_=1;
-            
+            iter_till_exit=0;
             t=1;
-            while(~conditions)
+            while(~conditions && (iter_till_exit<10000))
                 
-                
+                iter_till_exit=iter_till_exit+1;
                 eta=10;
                 
                 for trial = 1:(odorsTuning*numtrainingSamples)
@@ -880,23 +917,54 @@ for randomTrials=1:ll
             end
             Clevels(end+1)=CL_;
             INHAbs_CL(end+1)=InhAbs_CL;
-            theta_comp2=(C_.*theta_comp2);
+            
+             % rescue the initial states of the weights and fill the
+            % parameters to be tuned with NANs, failed to converge
+             if(iter_till_exit<10000)
+                 theta_comp2=(C_.*theta_comp2);                
+                 toc
+                 disp('dark blue model done');
+                 continue;
+             else
+                 disp('dark blue model failed to converge on unseen data');
+                 thisW_ActivityBasedComp(find(thisW_ActivityBasedComp))=nan;
+                 theta_comp2=ones(2000,1).*nan;
+                 APLgains(3)=nan;
+                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_darkBlue_unseenData'),'theta_comp2_0','initial_thisW_ActivityBasedComp');
+                 
+             end
+
+            % rescue the initial states of the weights and fill the
+            % parameters to be tuned with NANs, failed to converge
+          
+            %% tuning the input weights on the same odors that would
+            % be in the training phase; a familiar environment
             C_1=1;
             theta_comp2_tune_is_train= theta_comp2_0;
-            t_darkblue=toc;
-            disp('dark blue done');
-            
             tic
-            % tuning the input weights on the same odors that would
-            % be in the training phase; a familiar environment
+            
             Tune_Homeostatic_Model_on_trainingData;
+            
+            if(iter_till_exit<10000)
+                
+            theta_comp2_tune_is_train=(C_1.*theta_comp2_tune_is_train);
+            toc
+            disp('finished Homeostatic model on training')
+                
+            else
+                disp('dark blue model failed to converge on training data');
+                 thisW_ActivityBasedComp_tune_is_train(find(thisW_ActivityBasedComp_tune_is_train))=nan;
+                 theta_comp2_tune_is_train=ones(2000,1).*nan;
+                 APLgains_tune_is_train(3)=nan;
+                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_darkBlue_trainingData'),'theta_comp2_0','initial_thisW_ActivityBasedComp');
+                 
+                
+            end
+            
             % sanity check
             if (thetaH_Ftheta<0)
                 error('the theta in the homogeneous model cant be negative')
             end
-            
-            t_darkblue_tune_is_train=toc;
-            disp('Tune_Homeostatic_Model_on_trainingData done');
             
             
             tic
@@ -937,9 +1005,11 @@ for randomTrials=1:ll
             iterrDrop_1=1000;
             
             codingLevelDummy=[];
+            iter_till_exit=0;
             
-            while(~conditions)
+            while(~conditions &&(iter_till_exit<10000))
                 
+                iter_till_exit=iter_till_exit+1;
                 for trial = 1:(odorsTuning*numtrainingSamples)
                     
                     A(:,trial) = (cw.*thisW_Kennedy)'*PNtrials(:,trial);
@@ -1053,23 +1123,48 @@ for randomTrials=1:ll
                 iterr=iterr+1;
                 
             end
-            theta_Activity_homeo=C_.*theta_Activity_homeo;
-            thisW_Kennedy=cw.*thisW_Kennedy;
-            C_1=1;
             
-            theta_Activity_homeo_0= 2+ 1.*rand(2000,1);
-            theta_Activity_homeo_tune_is_train=theta_Activity_homeo_0;
+             if(iter_till_exit<10000)
+                 
+                disp('magenta model on unseen data done')
+                theta_Activity_homeo=C_.*theta_Activity_homeo;
+                thisW_Kennedy=cw.*thisW_Kennedy;
+            
+            else
+                disp('magenta model failed to converge on unseen data');
+                 theta_Activity_homeo=ones(2000,1).*nan;
+                 APLgains(4)=nan;
+                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_magenta_unseenData'),'thisW_Kennedy','theta_Activity_homeo_0');
+                 
+                
+            end
+            
             % tuning the same model on the familiar environment;
             % the odors that will be then used for training too.
+            
+            C_1=1;
+            theta_Activity_homeo_0= 2+ 1.*rand(2000,1);
+            theta_Activity_homeo_tune_is_train=theta_Activity_homeo_0;
+           
             Tune_Theta_Homeo_Model_on_trainingData;
             
-            t_magenta_unseen_and_seen_ododrs=toc;
+            if(iter_till_exit<10000)
+                theta_Activity_homeo_tune_is_train=C_1.*theta_Activity_homeo_tune_is_train;
+                toc
+                disp('finished tune thetahomeo on training');
+
+            else
+
+                 disp('magenta model failed to converge on training data');
+                 theta_Activity_homeo_tune_is_train=ones(2000,1).*nan;
+                 APLgains_tune_is_train(4)=nan;
+                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_magenta_trainingData'),'thisW_Kennedy','theta_Activity_homeo_0');
+            end
+           
             
+            
+            %% tuning the input inhibitory weights, APL->KC input weights
             tic
-            
-            
-            % tuning the input inhibitory weights, APL->KC input weights
-            
             APLtrajectory=zeros(2000,1);
             CLtrajectory=[];
             AvgAKCstrajectory=zeros(2000,1);
@@ -1105,11 +1200,11 @@ for randomTrials=1:ll
             codingLevelDummy=[];
             
             theta_inhibitionPlast=theta_inhibitionPlast_0;
-            
+            iter_till_exit=0;
             t=1;
             
-            while(~conditions)
-                
+            while(~conditions &&(iter_till_exit<10000) )
+                iter_till_exit=iter_till_exit+1;
                 for trial = 1:(odorsTuning*numtrainingSamples)
                     
                     A(:,trial) = thisW_ActivityBasedComp_inhibitionPlast'*PNtrials(:,trial);
@@ -1210,15 +1305,40 @@ for randomTrials=1:ll
             Clevels(end+1)=CL_;
             INHAbs_CL(end+1)=InhAbs_CL;
             
-            theta_inhibitionPlast=(C_.*theta_inhibitionPlast);
-            C_1=1;
-            theta_inhibitionPlast_tune_is_train=theta_inhibitionPlast_0;
+            if (iter_till_exit<10000)
+                disp('finished green model on unseen data')
+                theta_inhibitionPlast=(C_.*theta_inhibitionPlast);
+                toc
+            
+            else
+                disp('failed to converge on green model unseen data')
+                theta_inhibitionPlast=ones(2000,1).*nan;
+                APLgains_model6=ones(2000,1).*nan;
+                save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_green_unseenData'),'thisW_ActivityBasedComp_inhibitionPlast','theta_inhibitionPlast_0');
+
+            end
             
             % tuning the same model on the familiar environment;
             % the odors that will be then used for training too.
+            C_1=1;
+            theta_inhibitionPlast_tune_is_train=theta_inhibitionPlast_0;
             Tune_InhPlast_Model_on_trainingData;
             
-            t_greenmodel_unseen_and_seen_odors=toc;
+            if (iter_till_exit<10000)
+                disp('finished green model on training data')
+               Clevels_tune_is_train (end+1)=CL_;
+               INHAbs_CL_tune_is_train(end+1)=InhAbs_CL;
+               theta_inhibitionPlast_tune_is_train=(C_1.*theta_inhibitionPlast_tune_is_train);
+                toc
+
+            else
+                disp('failed to converge on green model training data')
+                theta_inhibitionPlast_tune_is_train=ones(2000,1).*nan;
+                APLgains_model6_tune_is_train=ones(2000,1).*nan;
+                save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_green_trainingData'),'thisW_ActivityBasedComp_inhibitionPlast','theta_inhibitionPlast_0');
+
+            end
+            
             
             
             %% if the loops broke without the constraints being statisfied. then
@@ -1242,481 +1362,481 @@ for randomTrials=1:ll
                     'theta_comp2_noxjk_tuneis_train','APLgains_noxjk_tuneis_train');
                 
             end
-            %% training and testing of the tuned models
-            
-            Activations=zeros(n,odors*numTrials);
-            ActivationsEqualized=zeros(n,odors*numTrials);
-            ActivationsHomogenousdummy_Ftheta=zeros(n,odors*numTrials);
-            Activations_comp2= zeros(n,odors*numTrials);
-            Activations_theta_activity_homeo= zeros(n,odors*numTrials);
-            Activations_inhibPlast=zeros(n,odors*numTrials);
-            Activations_comp2_noxjk= zeros(n,odors*numTrials);
-            
-            
-            Y=zeros(n,odors*numTrials);
-            YEqualized=zeros(n,odors*numTrials);
-            YHomogdummy_Ftheta=zeros(n,odors*numTrials);
-            Y_comp2= zeros(n,odors*numTrials);
-            Y_theta_activity_homeo=zeros(n,odors*numTrials);
-            Y_inhibPlast= zeros(n,odors*numTrials);
-            Y_comp2_noxjk= zeros(n,odors*numTrials);
-            
-            
-            % KCs neural responses to odors used from training same as in tuning:
-            Activations_tune_is_train=zeros(n,odors*numTrials);
-            ActivationsEqualized_tune_is_train=zeros(n,odors*numTrials);
-            ActivationsHomogenousdummy_Ftheta_tune_is_train=zeros(n,odors*numTrials);
-            Activations_comp2_tune_is_train= zeros(n,odors*numTrials);
-            Activations_theta_activity_homeo_tune_is_train= zeros(n,odors*numTrials);
-            Activations_inhibPlast_tune_is_train=zeros(n,odors*numTrials);
-            Activations_comp2_tune_is_train_noxjk= zeros(n,odors*numTrials);
-            
-            Y_tune_is_train=zeros(n,odors*numTrials);
-            YEqualized_tune_is_train=zeros(n,odors*numTrials);
-            YHomogdummy_Ftheta_tune_is_train=zeros(n,odors*numTrials);
-            Y_comp2_tune_is_train= zeros(n,odors*numTrials);
-            Y_theta_activity_homeo_tune_is_train=zeros(n,odors*numTrials);
-            Y_inhibPlast_tune_is_train= zeros(n,odors*numTrials);
-            Y_comp2_tune_is_train_noxjk= zeros(n,odors*numTrials);
-            
-            for trial = 1:(odors*numTrials)
-                
-                
-                ActivationsHomogenousdummy_Ftheta(:,trial) = thisW_HomogModel'*PNtrials_tune_train(:,trial  );
-                YHomogdummy_Ftheta(:,trial)=(( ActivationsHomogenousdummy_Ftheta(:,trial)-(APLgains(2))*repmat(sum(ActivationsHomogenousdummy_Ftheta(:,trial),1),n,1)-thetaH_Ftheta)>0 ).*( ActivationsHomogenousdummy_Ftheta(:,trial)-APLgains(2)*repmat(sum(ActivationsHomogenousdummy_Ftheta(:,trial),1),n,1)-thetaH_Ftheta);
-                
-                %
-                ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial) = thisW_HomogModel'*PNtrials_tune_train(:,trial  );
-                YHomogdummy_Ftheta_tune_is_train(:,trial)=(( ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial)-(APLgains_tune_is_train(2))*repmat(sum(ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial),1),n,1)-thetaH_Ftheta_tune_is_train)>0 ).*( ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial)-APLgains_tune_is_train(2)*repmat(sum(ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial),1),n,1)-thetaH_Ftheta_tune_is_train);
-                
-                
-                
-                Activations(:,trial) = thisW'*PNtrials_tune_train(:,trial );
-                Y(:,trial)=(( Activations(:,trial)-(APLgains(1))*repmat(sum(Activations(:,trial),1),n,1)-thetaS)>0 ).*( Activations(:,trial)-APLgains(1)*repmat(sum(Activations(:,trial),1),n,1)-thetaS);
-                
-                %
-                Activations_tune_is_train(:,trial) = thisW'*PNtrials_tune_train(:,trial );
-                Y_tune_is_train(:,trial)=(( Activations_tune_is_train(:,trial)-(APLgains_tune_is_train(1))*repmat(sum(Activations_tune_is_train(:,trial),1),n,1)-thetaS_tune_is_train)>0 ).*( Activations_tune_is_train(:,trial)-APLgains_tune_is_train(1)*repmat(sum(Activations_tune_is_train(:,trial),1),n,1)-thetaS_tune_is_train);
-                
-                
-                
-                ActivationsEqualized(:,trial) = thisW_equalizedModel'*PNtrials_tune_train(:,trial );
-                YEqualized(:,trial)=(( ActivationsEqualized(:,trial)-(InhibitionGain)*repmat(sum(ActivationsEqualized(:,trial),1),n,1)-theta)>0 ).*( ActivationsEqualized(:,trial)-InhibitionGain*repmat(sum(ActivationsEqualized(:,trial),1),n,1)-theta);
-                
-                %
-                ActivationsEqualized_tune_is_train(:,trial) = thisW_equalizedModel_tune_is_train'*PNtrials_tune_train(:,trial );
-                YEqualized_tune_is_train(:,trial)=(( ActivationsEqualized_tune_is_train(:,trial)-(InhibitionGain_tune_is_train)*repmat(sum(ActivationsEqualized_tune_is_train(:,trial),1),n,1)-theta_tune_is_train)>0 ).*( ActivationsEqualized_tune_is_train(:,trial)-InhibitionGain_tune_is_train*repmat(sum(ActivationsEqualized_tune_is_train(:,trial),1),n,1)-theta_tune_is_train);
-                
-                
-                Activations_comp2(:,trial) = thisW_ActivityBasedComp'*PNtrials_tune_train(:,trial );
-                Y_comp2(:,trial)=(( Activations_comp2(:,trial)-(APLgains(3) )*repmat(sum(Activations_comp2(:,trial),1),n,1)-theta_comp2)>0 ).*( Activations_comp2(:,trial)-APLgains(3)*repmat(sum(Activations_comp2(:,trial),1),n,1)-theta_comp2);
-                
-                %
-                Activations_comp2_tune_is_train(:,trial) = thisW_ActivityBasedComp_tune_is_train'*PNtrials_tune_train(:,trial );
-                Y_comp2_tune_is_train(:,trial)=(( Activations_comp2_tune_is_train(:,trial)-(APLgains_tune_is_train(3) )*repmat(sum(Activations_comp2_tune_is_train(:,trial),1),n,1)-theta_comp2_tune_is_train)>0 ).*( Activations_comp2_tune_is_train(:,trial)-APLgains_tune_is_train(3)*repmat(sum(Activations_comp2_tune_is_train(:,trial),1),n,1)-theta_comp2_tune_is_train);
-                
-                
-                Activations_theta_activity_homeo(:,trial) = thisW_Kennedy'*PNtrials_tune_train(:,trial );
-                Y_theta_activity_homeo(:,trial)=(( Activations_theta_activity_homeo(:,trial)-(APLgains(4) )*repmat(sum(Activations_theta_activity_homeo(:,trial),1),n,1)-theta_Activity_homeo)>0 ).*( Activations_theta_activity_homeo(:,trial)-APLgains(4)*repmat(sum(Activations_theta_activity_homeo(:,trial),1),n,1)-theta_Activity_homeo);
-                %
-                Activations_theta_activity_homeo_tune_is_train(:,trial) = thisW_Kennedy'*PNtrials_tune_train(:,trial );
-                Y_theta_activity_homeo_tune_is_train(:,trial)=(( Activations_theta_activity_homeo_tune_is_train(:,trial)-(APLgains_tune_is_train(4) )*repmat(sum(Activations_theta_activity_homeo_tune_is_train(:,trial),1),n,1)-theta_Activity_homeo_tune_is_train)>0 ).*( Activations_theta_activity_homeo_tune_is_train(:,trial)-APLgains_tune_is_train(4)*repmat(sum(Activations_theta_activity_homeo_tune_is_train(:,trial),1),n,1)-theta_Activity_homeo_tune_is_train);
-                
-                
-                Activations_inhibPlast(:,trial) = thisW_ActivityBasedComp_inhibitionPlast'*PNtrials_tune_train(:,trial );
-                Y_inhibPlast(:,trial)=(( Activations_inhibPlast(:,trial)-(APLgains_model6 )./(n).*repmat(sum(Activations_inhibPlast(:,trial),1),n,1)-theta_inhibitionPlast)>0 ).*( Activations_inhibPlast(:,trial)-APLgains_model6./(n).*repmat(sum(Activations_inhibPlast(:,trial),1),n,1)-theta_inhibitionPlast);
-                %
-                Activations_inhibPlast_tune_is_train(:,trial) = thisW_ActivityBasedComp_inhibitionPlast'*PNtrials_tune_train(:,trial );
-                Y_inhibPlast_tune_is_train(:,trial)=(( Activations_inhibPlast_tune_is_train(:,trial)-(APLgains_model6_tune_is_train )./(n).*repmat(sum(Activations_inhibPlast_tune_is_train(:,trial),1),n,1)-theta_inhibitionPlast_tune_is_train)>0 ).*( Activations_inhibPlast_tune_is_train(:,trial)-APLgains_model6_tune_is_train./(n).*repmat(sum(Activations_inhibPlast_tune_is_train(:,trial),1),n,1)-theta_inhibitionPlast_tune_is_train);
-                
-                Activations_comp2_noxjk(:,trial) = thisW_ActivityBasedComp_noxjk'*PNtrials_tune_train(:,trial );
-                Y_comp2_noxjk(:,trial)=(( Activations_comp2_noxjk(:,trial)-(APLgains_noxjk )*repmat(sum(Activations_comp2_noxjk(:,trial),1),n,1)-theta_comp2_noxjk)>0 ).*( Activations_comp2_noxjk(:,trial)-APLgains_noxjk*repmat(sum(Activations_comp2_noxjk(:,trial),1),n,1)-theta_comp2_noxjk);
-                
-                %
-                Activations_comp2_tune_is_train_noxjk(:,trial) = thisW_ActivityBasedComp_noxjk_tuneis_train'*PNtrials_tune_train(:,trial );
-                Y_comp2_tune_is_train_noxjk(:,trial)=(( Activations_comp2_tune_is_train_noxjk(:,trial)-(APLgains_noxjk_tuneis_train )*repmat(sum(Activations_comp2_tune_is_train_noxjk(:,trial),1),n,1)-theta_comp2_noxjk_tuneis_train)>0 ).*( Activations_comp2_tune_is_train_noxjk(:,trial)-APLgains_noxjk_tuneis_train*repmat(sum(Activations_comp2_tune_is_train_noxjk(:,trial),1),n,1)-theta_comp2_noxjk_tuneis_train);
-                
-                
-            end
-            
-            %% training of the KC-MBONs output weights
-            
-            for l_r=1:lrs
-                
-                WopAllOdours=1*rand(n,2);
-                WopAllOdoursEqualized= WopAllOdours;
-                WopAllOdoursHomog_Ftheta=WopAllOdours;
-                WopAllOdoursInhPlast=WopAllOdours;
-                WopAllOdoursEqualizedComp2=WopAllOdours;
-                WopFromPNs= 1*rand(m,2);
-                WopAllOdoursThetaActivityHomeo=WopAllOdours;
-                WopAllOdoursEqualizedComp2_noxjk=WopAllOdours;
-                
-                % the weights vectors initial state in the tune_is_train
-                % models should be equal to those with tuning set different
-                % than training set
-                
-                WopAllOdours_tune_is_train=WopAllOdours;
-                WopAllOdoursEqualized_tune_is_train= WopAllOdours;
-                WopAllOdoursHomog_Ftheta_tune_is_train=WopAllOdours;
-                WopAllOdoursInhPlast_tune_is_train=WopAllOdours;
-                WopAllOdoursEqualizedComp2_tune_is_train=WopAllOdours;
-                WopFromPNs_tune_is_train= 1*rand(m,2);
-                WopAllOdoursThetaActivityHomeo_tune_is_train=WopAllOdours;
-                WopAllOdoursEqualizedComp2_tune_is_train_noxjk=WopAllOdours;
-                
-                
-                alpha=0.000001* (10^((l_r)));
-                
-                c=1;
-                
-                YHomog_Fthetatemp=reshape(YHomogdummy_Ftheta,n,odors,numTrials);
-                
-                Ytemp= reshape(Y,n,odors,numTrials);
-                
-                YEqualizedtemp=reshape(YEqualized,n,odors,numTrials);
-                
-                Y_comp2temp= reshape(Y_comp2,n,odors,numTrials);
-                
-                Y_theta_activity_homeotemp= reshape(Y_theta_activity_homeo,n,odors,numTrials);
-                
-                Y_inhibPlasttemp= reshape(Y_inhibPlast,n,odors,numTrials);
-                Y_comp2temp_noxjk= reshape(Y_comp2_noxjk,n,odors,numTrials);
-                
-                
-                
-                % rescale the KC responses to be from 0-1
-                Ytemp=rescale(Ytemp);
-                YEqualizedtemp=rescale(YEqualizedtemp);
-                YHomog_Fthetatemp=rescale(YHomog_Fthetatemp);
-                Y_comp2temp=rescale(Y_comp2temp);
-                Y_comp2temp_noxjk=rescale(Y_comp2temp_noxjk);
-                Y_theta_activity_homeotemp= rescale(Y_theta_activity_homeotemp);
-                Y_inhibPlasttemp=rescale(Y_inhibPlasttemp);
-                
-                YHomog_Fthetatr=YHomog_Fthetatemp(:,:,1:numtrainingSamples);
-                
-                Ytr=Ytemp(:,:,1:numtrainingSamples);
-                
-                YEqualizedtr=YEqualizedtemp(:,:,1:numtrainingSamples);
-                
-                Y_comp2tr= Y_comp2temp(:,:,1:numtrainingSamples);
-                
-                Y_theta_activity_homeotr= Y_theta_activity_homeotemp(:,:,1:numtrainingSamples);
-                
-                Y_inhibPlasttr= Y_inhibPlasttemp(:,:,1:numtrainingSamples);
-                Y_comp2tr_noxjk= Y_comp2temp_noxjk(:,:,1:numtrainingSamples);
-                
-                
-                % rescaling and reshaping the responses of the
-                % tune_is_train data
-                
-                YHomog_Fthetatemp_tune_is_train=reshape(YHomogdummy_Ftheta_tune_is_train,n,odors,numTrials);
-                
-                Ytemp_tune_is_train= reshape(Y_tune_is_train,n,odors,numTrials);
-                
-                YEqualizedtemp_tune_is_train=reshape(YEqualized_tune_is_train,n,odors,numTrials);
-                
-                Y_comp2temp_tune_is_train= reshape(Y_comp2_tune_is_train,n,odors,numTrials);
-                
-                Y_theta_activity_homeotemp_tune_is_train= reshape(Y_theta_activity_homeo_tune_is_train,n,odors,numTrials);
-                
-                Y_inhibPlasttemp_tune_is_train= reshape(Y_inhibPlast_tune_is_train,n,odors,numTrials);
-                Y_comp2temp_tune_is_train_noxjk= reshape(Y_comp2_tune_is_train_noxjk,n,odors,numTrials);
-                
-                
-                
-                % rescale the KC responses to be from 0-1
-                Ytemp_tune_is_train=rescale(Ytemp_tune_is_train);
-                
-                YEqualizedtemp_tune_is_train=rescale(YEqualizedtemp_tune_is_train);
-                
-                YHomog_Fthetatemp_tune_is_train=rescale(YHomog_Fthetatemp_tune_is_train);
-                
-                Y_comp2temp_tune_is_train=rescale(Y_comp2temp_tune_is_train);
-                
-                Y_theta_activity_homeotemp_tune_is_train= rescale(Y_theta_activity_homeotemp_tune_is_train);
-                
-                Y_inhibPlasttemp_tune_is_train=rescale(Y_inhibPlasttemp_tune_is_train);
-                
-                Y_comp2temp_tune_is_train_noxjk=rescale(Y_comp2temp_tune_is_train_noxjk);
-                
-                
-                YHomog_Fthetatr_tune_is_train=YHomog_Fthetatemp_tune_is_train(:,:,1:numtrainingSamples);
-                
-                Ytr_tune_is_train=Ytemp_tune_is_train(:,:,1:numtrainingSamples);
-                
-                YEqualizedtr_tune_is_train=YEqualizedtemp_tune_is_train(:,:,1:numtrainingSamples);
-                
-                Y_comp2tr_tune_is_train= Y_comp2temp_tune_is_train(:,:,1:numtrainingSamples);
-                
-                Y_theta_activity_homeotr_tune_is_train= Y_theta_activity_homeotemp_tune_is_train(:,:,1:numtrainingSamples);
-                
-                Y_inhibPlasttr_tune_is_train= Y_inhibPlasttemp_tune_is_train(:,:,1:numtrainingSamples);
-                
-                Y_comp2tr_tune_is_train_noxjk= Y_comp2temp_tune_is_train_noxjk(:,:,1:numtrainingSamples);
-                
-                %% learning from a preceptron in the output layer; by Synaptic depression of the
-                % input weights to the MBON of the opposing valence.
-                
-                for odour=1:odors
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        delta =  exp( -(alpha/mean(YHomog_Fthetatr(:)))* sum(YHomog_Fthetatr(:,odour,:),3) );
-                        
-                        WopAllOdoursHomog_Ftheta(:,2)= WopAllOdoursHomog_Ftheta(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(YHomog_Fthetatr(:)))* sum(YHomog_Fthetatr(:,odour,:),3) );
-                        WopAllOdoursHomog_Ftheta(:,1)= WopAllOdoursHomog_Ftheta(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        delta =  exp( -(alpha/mean(Ytr(:)))* sum(Ytr(:,odour,:),3) );
-                        
-                        deltaW(:,c)= WopAllOdours(:,2).*(delta-1);
-                        c=c+1;
-                        WopAllOdours(:,2)= WopAllOdours(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Ytr(:)))* sum(Ytr(:,odour,:),3) );
-                        WopAllOdours(:,1)= WopAllOdours(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta = exp( -(alpha/mean(YEqualizedtr(:)))* sum((YEqualizedtr(:,odour,:)),3) );
-                        
-                        
-                        WopAllOdoursEqualized(:,2)= WopAllOdoursEqualized(:,2).*delta;
-                        
-                    else
-                        
-                        delta =  exp(-(alpha /mean(YEqualizedtr(:)))* sum(YEqualizedtr(:,odour,:),3) );
-                        WopAllOdoursEqualized(:,1)= WopAllOdoursEqualized(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta =  exp( -(alpha/mean(Y_comp2tr(:)))* sum(Y_comp2tr(:,odour,:),3) );
-                        
-                        WopAllOdoursEqualizedComp2(:,2)= WopAllOdoursEqualizedComp2(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Y_comp2tr(:)))* sum(Y_comp2tr(:,odour,:),3) );
-                        WopAllOdoursEqualizedComp2(:,1)= WopAllOdoursEqualizedComp2(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta =  exp( -(alpha/mean(Y_theta_activity_homeotr(:)))* sum(Y_theta_activity_homeotr(:,odour,:),3) );
-                        
-                        WopAllOdoursThetaActivityHomeo(:,2)= WopAllOdoursThetaActivityHomeo(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Y_theta_activity_homeotr(:)))* sum(Y_theta_activity_homeotr(:,odour,:),3) );
-                        WopAllOdoursThetaActivityHomeo(:,1)= WopAllOdoursThetaActivityHomeo(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta =  exp( -(alpha/mean(Y_inhibPlasttr(:)))* sum(Y_inhibPlasttr(:,odour,:),3) );
-                        
-                        WopAllOdoursInhPlast(:,2)= WopAllOdoursInhPlast(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Y_inhibPlasttr(:)))* sum(Y_inhibPlasttr(:,odour,:),3) );
-                        WopAllOdoursInhPlast(:,1)= WopAllOdoursInhPlast(:,1) .*delta;
-                        
-                    end
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta =  exp( -(alpha/mean(Y_comp2tr_noxjk(:)))* sum(Y_comp2tr_noxjk(:,odour,:),3) );
-                        
-                        WopAllOdoursEqualizedComp2_noxjk(:,2)= WopAllOdoursEqualizedComp2_noxjk(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Y_comp2tr_noxjk(:)))* sum(Y_comp2tr_noxjk(:,odour,:),3) );
-                        WopAllOdoursEqualizedComp2_noxjk(:,1)= WopAllOdoursEqualizedComp2_noxjk(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    %% do training for the output perceptrons from the tune_is_train responses
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        delta =  exp( -(alpha/mean(YHomog_Fthetatr_tune_is_train(:)))* sum(YHomog_Fthetatr_tune_is_train(:,odour,:),3) );
-                        
-                        WopAllOdoursHomog_Ftheta_tune_is_train(:,2)= WopAllOdoursHomog_Ftheta_tune_is_train(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(YHomog_Fthetatr_tune_is_train(:)))* sum(YHomog_Fthetatr_tune_is_train(:,odour,:),3) );
-                        WopAllOdoursHomog_Ftheta_tune_is_train(:,1)= WopAllOdoursHomog_Ftheta_tune_is_train(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        delta =  exp( -(alpha/mean(Ytr_tune_is_train(:)))* sum(Ytr_tune_is_train(:,odour,:),3) );
-                        
-                        WopAllOdours_tune_is_train(:,2)= WopAllOdours_tune_is_train(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Ytr_tune_is_train(:)))* sum(Ytr_tune_is_train(:,odour,:),3) );
-                        WopAllOdours_tune_is_train(:,1)= WopAllOdours_tune_is_train(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta = exp( -(alpha/mean(YEqualizedtr_tune_is_train(:)))* sum((YEqualizedtr_tune_is_train(:,odour,:)),3) );
-                        
-                        
-                        WopAllOdoursEqualized_tune_is_train(:,2)= WopAllOdoursEqualized_tune_is_train(:,2).*delta;
-                        
-                    else
-                        
-                        delta =  exp(-(alpha /mean(YEqualizedtr_tune_is_train(:)))* sum(YEqualizedtr_tune_is_train(:,odour,:),3) );
-                        WopAllOdoursEqualized_tune_is_train(:,1)= WopAllOdoursEqualized_tune_is_train(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta =  exp( -(alpha/mean(Y_comp2tr_tune_is_train(:)))* sum(Y_comp2tr_tune_is_train(:,odour,:),3) );
-                        
-                        WopAllOdoursEqualizedComp2_tune_is_train(:,2)= WopAllOdoursEqualizedComp2_tune_is_train(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Y_comp2tr_tune_is_train(:)))* sum(Y_comp2tr_tune_is_train(:,odour,:),3) );
-                        WopAllOdoursEqualizedComp2_tune_is_train(:,1)= WopAllOdoursEqualizedComp2_tune_is_train(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta =  exp( -(alpha/mean(Y_theta_activity_homeotr_tune_is_train(:)))* sum(Y_theta_activity_homeotr_tune_is_train(:,odour,:),3) );
-                        
-                        WopAllOdoursThetaActivityHomeo_tune_is_train(:,2)= WopAllOdoursThetaActivityHomeo_tune_is_train(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Y_theta_activity_homeotr_tune_is_train(:)))* sum(Y_theta_activity_homeotr_tune_is_train(:,odour,:),3) );
-                        
-                        WopAllOdoursThetaActivityHomeo_tune_is_train(:,1)= WopAllOdoursThetaActivityHomeo_tune_is_train(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta =  exp( -(alpha/mean(Y_inhibPlasttr_tune_is_train(:)))* sum(Y_inhibPlasttr_tune_is_train(:,odour,:),3) );
-                        
-                        WopAllOdoursInhPlast_tune_is_train(:,2)= WopAllOdoursInhPlast_tune_is_train(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Y_inhibPlasttr_tune_is_train(:)))* sum(Y_inhibPlasttr_tune_is_train(:,odour,:),3) );
-                        WopAllOdoursInhPlast_tune_is_train(:,1)= WopAllOdoursInhPlast_tune_is_train(:,1) .*delta;
-                        
-                    end
-                    
-                    if( ~ isempty(find(classAction1==odour)) )
-                        
-                        delta =  exp( -(alpha/mean(Y_comp2tr_tune_is_train_noxjk(:)))* sum(Y_comp2tr_tune_is_train_noxjk(:,odour,:),3) );
-                        
-                        WopAllOdoursEqualizedComp2_tune_is_train_noxjk(:,2)= WopAllOdoursEqualizedComp2_tune_is_train_noxjk(:,2) .*delta;
-                        
-                    else
-                        
-                        delta = exp(- (alpha/mean(Y_comp2tr_tune_is_train_noxjk(:)))* sum(Y_comp2tr_tune_is_train_noxjk(:,odour,:),3) );
-                        WopAllOdoursEqualizedComp2_tune_is_train_noxjk(:,1)= WopAllOdoursEqualizedComp2_tune_is_train_noxjk(:,1) .*delta;
-                        
-                    end
-                    
-                    
-                    
-                end
-                
-                %% perfromance as a function of the strictness of the decision making
-                %% this strictness is dictated by C in the soft-max function.
-                %% so given the same fly, same task, and after learning measure the performance as f(c)
-                
-                for c=1:Crange
-                    
-                    
-                    C=C_SoftMax*(10^c);
-                    
-                    [acc,accEq,accEq2, accKenn,accInhPlast,acc_comp2_noxjk]=Robustness_testing(C,WopAllOdours,WopAllOdoursEqualized,WopAllOdoursEqualizedComp2, WopAllOdoursThetaActivityHomeo, WopAllOdoursInhPlast, WopAllOdoursEqualizedComp2_noxjk,...
-                        classAction1,numTrials,numtrainingSamples,Ytemp,YEqualizedtemp,Y_comp2temp,Y_theta_activity_homeotemp,Y_inhibPlasttemp,Y_comp2temp_noxjk);
-                    
-                    test_p_raEq(randomTrials,tune,l_r,c)=accEq;
-                    test_p_ra(randomTrials,tune,l_r,c)=acc;
-                    test_p_raEq2(randomTrials,tune,l_r,c)=accEq2;
-                    test_p_raThetaActivity_homeo(randomTrials,tune,l_r,c)= accKenn;
-                    test_p_raInhPlast(randomTrials,tune,l_r,c)= accInhPlast;
-                    test_p_raEq2_noxjk(randomTrials,tune,l_r,c)=acc_comp2_noxjk;
-                    
-                    
-                    % testing of the tuned models in a familiar environment.
-                    [acc_tune_is_train,accEq_tune_is_train,accEq2_tune_is_train, accKenn_tune_is_train,accInhPlast_tune_is_train,accEq2_tune_is_train_noxjk]=Robustness_testing(C,WopAllOdours_tune_is_train,WopAllOdoursEqualized_tune_is_train,WopAllOdoursEqualizedComp2_tune_is_train, WopAllOdoursThetaActivityHomeo_tune_is_train, WopAllOdoursInhPlast_tune_is_train,WopAllOdoursEqualizedComp2_tune_is_train_noxjk,...
-                        classAction1,numTrials,numtrainingSamples,Ytemp_tune_is_train,YEqualizedtemp_tune_is_train,Y_comp2temp_tune_is_train,Y_theta_activity_homeotemp_tune_is_train,Y_inhibPlasttemp_tune_is_train,Y_comp2temp_tune_is_train_noxjk);
-                    
-                    test_p_raEq_tune_is_train(randomTrials,tune,l_r,c)=accEq_tune_is_train;
-                    test_p_ra_tune_is_train(randomTrials,tune,l_r,c)=acc_tune_is_train;
-                    test_p_raEq2_tune_is_train(randomTrials,tune,l_r,c)=accEq2_tune_is_train;
-                    test_p_raThetaActivity_homeo_tune_is_train(randomTrials,tune,l_r,c)= accKenn_tune_is_train;
-                    test_p_raInhPlast_tune_is_train(randomTrials,tune,l_r,c)= accInhPlast_tune_is_train;
-                    test_p_raEq2_noxjk_tune_is_train(randomTrials,tune,l_r,c)=accEq2_tune_is_train_noxjk;
-                    
-                    
-                    
-                    [accH1]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta,PNtrials_tune_train, thetaH_Ftheta,InhibitionGain, APLgains,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp);
-                    
-                    test_p_raH_FixedTheta(randomTrials,tune,l_r,c)=accH1;
-                    
-                    
-                    [accH1_tune_is_train]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta_tune_is_train,PNtrials_tune_train, thetaH_Ftheta_tune_is_train,InhibitionGain_tune_is_train, APLgains_tune_is_train,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp_tune_is_train);
-                    
-                    test_p_raH_FixedTheta_tune_is_train(randomTrials,tune,l_r,c)=accH1_tune_is_train;
-                    
-                end
-                
-                
-                
-            end
-            
-            
+%             %% training and testing of the tuned models
+%             
+%             Activations=zeros(n,odors*numTrials);
+%             ActivationsEqualized=zeros(n,odors*numTrials);
+%             ActivationsHomogenousdummy_Ftheta=zeros(n,odors*numTrials);
+%             Activations_comp2= zeros(n,odors*numTrials);
+%             Activations_theta_activity_homeo= zeros(n,odors*numTrials);
+%             Activations_inhibPlast=zeros(n,odors*numTrials);
+%             Activations_comp2_noxjk= zeros(n,odors*numTrials);
+%             
+%             
+%             Y=zeros(n,odors*numTrials);
+%             YEqualized=zeros(n,odors*numTrials);
+%             YHomogdummy_Ftheta=zeros(n,odors*numTrials);
+%             Y_comp2= zeros(n,odors*numTrials);
+%             Y_theta_activity_homeo=zeros(n,odors*numTrials);
+%             Y_inhibPlast= zeros(n,odors*numTrials);
+%             Y_comp2_noxjk= zeros(n,odors*numTrials);
+%             
+%             
+%             % KCs neural responses to odors used from training same as in tuning:
+%             Activations_tune_is_train=zeros(n,odors*numTrials);
+%             ActivationsEqualized_tune_is_train=zeros(n,odors*numTrials);
+%             ActivationsHomogenousdummy_Ftheta_tune_is_train=zeros(n,odors*numTrials);
+%             Activations_comp2_tune_is_train= zeros(n,odors*numTrials);
+%             Activations_theta_activity_homeo_tune_is_train= zeros(n,odors*numTrials);
+%             Activations_inhibPlast_tune_is_train=zeros(n,odors*numTrials);
+%             Activations_comp2_tune_is_train_noxjk= zeros(n,odors*numTrials);
+%             
+%             Y_tune_is_train=zeros(n,odors*numTrials);
+%             YEqualized_tune_is_train=zeros(n,odors*numTrials);
+%             YHomogdummy_Ftheta_tune_is_train=zeros(n,odors*numTrials);
+%             Y_comp2_tune_is_train= zeros(n,odors*numTrials);
+%             Y_theta_activity_homeo_tune_is_train=zeros(n,odors*numTrials);
+%             Y_inhibPlast_tune_is_train= zeros(n,odors*numTrials);
+%             Y_comp2_tune_is_train_noxjk= zeros(n,odors*numTrials);
+%             
+%             for trial = 1:(odors*numTrials)
+%                 
+%                 
+%                 ActivationsHomogenousdummy_Ftheta(:,trial) = thisW_HomogModel'*PNtrials_tune_train(:,trial  );
+%                 YHomogdummy_Ftheta(:,trial)=(( ActivationsHomogenousdummy_Ftheta(:,trial)-(APLgains(2))*repmat(sum(ActivationsHomogenousdummy_Ftheta(:,trial),1),n,1)-thetaH_Ftheta)>0 ).*( ActivationsHomogenousdummy_Ftheta(:,trial)-APLgains(2)*repmat(sum(ActivationsHomogenousdummy_Ftheta(:,trial),1),n,1)-thetaH_Ftheta);
+%                 
+%                 %
+%                 ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial) = thisW_HomogModel'*PNtrials_tune_train(:,trial  );
+%                 YHomogdummy_Ftheta_tune_is_train(:,trial)=(( ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial)-(APLgains_tune_is_train(2))*repmat(sum(ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial),1),n,1)-thetaH_Ftheta_tune_is_train)>0 ).*( ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial)-APLgains_tune_is_train(2)*repmat(sum(ActivationsHomogenousdummy_Ftheta_tune_is_train(:,trial),1),n,1)-thetaH_Ftheta_tune_is_train);
+%                 
+%                 
+%                 
+%                 Activations(:,trial) = thisW'*PNtrials_tune_train(:,trial );
+%                 Y(:,trial)=(( Activations(:,trial)-(APLgains(1))*repmat(sum(Activations(:,trial),1),n,1)-thetaS)>0 ).*( Activations(:,trial)-APLgains(1)*repmat(sum(Activations(:,trial),1),n,1)-thetaS);
+%                 
+%                 %
+%                 Activations_tune_is_train(:,trial) = thisW'*PNtrials_tune_train(:,trial );
+%                 Y_tune_is_train(:,trial)=(( Activations_tune_is_train(:,trial)-(APLgains_tune_is_train(1))*repmat(sum(Activations_tune_is_train(:,trial),1),n,1)-thetaS_tune_is_train)>0 ).*( Activations_tune_is_train(:,trial)-APLgains_tune_is_train(1)*repmat(sum(Activations_tune_is_train(:,trial),1),n,1)-thetaS_tune_is_train);
+%                 
+%                 
+%                 
+%                 ActivationsEqualized(:,trial) = thisW_equalizedModel'*PNtrials_tune_train(:,trial );
+%                 YEqualized(:,trial)=(( ActivationsEqualized(:,trial)-(InhibitionGain)*repmat(sum(ActivationsEqualized(:,trial),1),n,1)-theta)>0 ).*( ActivationsEqualized(:,trial)-InhibitionGain*repmat(sum(ActivationsEqualized(:,trial),1),n,1)-theta);
+%                 
+%                 %
+%                 ActivationsEqualized_tune_is_train(:,trial) = thisW_equalizedModel_tune_is_train'*PNtrials_tune_train(:,trial );
+%                 YEqualized_tune_is_train(:,trial)=(( ActivationsEqualized_tune_is_train(:,trial)-(InhibitionGain_tune_is_train)*repmat(sum(ActivationsEqualized_tune_is_train(:,trial),1),n,1)-theta_tune_is_train)>0 ).*( ActivationsEqualized_tune_is_train(:,trial)-InhibitionGain_tune_is_train*repmat(sum(ActivationsEqualized_tune_is_train(:,trial),1),n,1)-theta_tune_is_train);
+%                 
+%                 
+%                 Activations_comp2(:,trial) = thisW_ActivityBasedComp'*PNtrials_tune_train(:,trial );
+%                 Y_comp2(:,trial)=(( Activations_comp2(:,trial)-(APLgains(3) )*repmat(sum(Activations_comp2(:,trial),1),n,1)-theta_comp2)>0 ).*( Activations_comp2(:,trial)-APLgains(3)*repmat(sum(Activations_comp2(:,trial),1),n,1)-theta_comp2);
+%                 
+%                 %
+%                 Activations_comp2_tune_is_train(:,trial) = thisW_ActivityBasedComp_tune_is_train'*PNtrials_tune_train(:,trial );
+%                 Y_comp2_tune_is_train(:,trial)=(( Activations_comp2_tune_is_train(:,trial)-(APLgains_tune_is_train(3) )*repmat(sum(Activations_comp2_tune_is_train(:,trial),1),n,1)-theta_comp2_tune_is_train)>0 ).*( Activations_comp2_tune_is_train(:,trial)-APLgains_tune_is_train(3)*repmat(sum(Activations_comp2_tune_is_train(:,trial),1),n,1)-theta_comp2_tune_is_train);
+%                 
+%                 
+%                 Activations_theta_activity_homeo(:,trial) = thisW_Kennedy'*PNtrials_tune_train(:,trial );
+%                 Y_theta_activity_homeo(:,trial)=(( Activations_theta_activity_homeo(:,trial)-(APLgains(4) )*repmat(sum(Activations_theta_activity_homeo(:,trial),1),n,1)-theta_Activity_homeo)>0 ).*( Activations_theta_activity_homeo(:,trial)-APLgains(4)*repmat(sum(Activations_theta_activity_homeo(:,trial),1),n,1)-theta_Activity_homeo);
+%                 %
+%                 Activations_theta_activity_homeo_tune_is_train(:,trial) = thisW_Kennedy'*PNtrials_tune_train(:,trial );
+%                 Y_theta_activity_homeo_tune_is_train(:,trial)=(( Activations_theta_activity_homeo_tune_is_train(:,trial)-(APLgains_tune_is_train(4) )*repmat(sum(Activations_theta_activity_homeo_tune_is_train(:,trial),1),n,1)-theta_Activity_homeo_tune_is_train)>0 ).*( Activations_theta_activity_homeo_tune_is_train(:,trial)-APLgains_tune_is_train(4)*repmat(sum(Activations_theta_activity_homeo_tune_is_train(:,trial),1),n,1)-theta_Activity_homeo_tune_is_train);
+%                 
+%                 
+%                 Activations_inhibPlast(:,trial) = thisW_ActivityBasedComp_inhibitionPlast'*PNtrials_tune_train(:,trial );
+%                 Y_inhibPlast(:,trial)=(( Activations_inhibPlast(:,trial)-(APLgains_model6 )./(n).*repmat(sum(Activations_inhibPlast(:,trial),1),n,1)-theta_inhibitionPlast)>0 ).*( Activations_inhibPlast(:,trial)-APLgains_model6./(n).*repmat(sum(Activations_inhibPlast(:,trial),1),n,1)-theta_inhibitionPlast);
+%                 %
+%                 Activations_inhibPlast_tune_is_train(:,trial) = thisW_ActivityBasedComp_inhibitionPlast'*PNtrials_tune_train(:,trial );
+%                 Y_inhibPlast_tune_is_train(:,trial)=(( Activations_inhibPlast_tune_is_train(:,trial)-(APLgains_model6_tune_is_train )./(n).*repmat(sum(Activations_inhibPlast_tune_is_train(:,trial),1),n,1)-theta_inhibitionPlast_tune_is_train)>0 ).*( Activations_inhibPlast_tune_is_train(:,trial)-APLgains_model6_tune_is_train./(n).*repmat(sum(Activations_inhibPlast_tune_is_train(:,trial),1),n,1)-theta_inhibitionPlast_tune_is_train);
+%                 
+%                 Activations_comp2_noxjk(:,trial) = thisW_ActivityBasedComp_noxjk'*PNtrials_tune_train(:,trial );
+%                 Y_comp2_noxjk(:,trial)=(( Activations_comp2_noxjk(:,trial)-(APLgains_noxjk )*repmat(sum(Activations_comp2_noxjk(:,trial),1),n,1)-theta_comp2_noxjk)>0 ).*( Activations_comp2_noxjk(:,trial)-APLgains_noxjk*repmat(sum(Activations_comp2_noxjk(:,trial),1),n,1)-theta_comp2_noxjk);
+%                 
+%                 %
+%                 Activations_comp2_tune_is_train_noxjk(:,trial) = thisW_ActivityBasedComp_noxjk_tuneis_train'*PNtrials_tune_train(:,trial );
+%                 Y_comp2_tune_is_train_noxjk(:,trial)=(( Activations_comp2_tune_is_train_noxjk(:,trial)-(APLgains_noxjk_tuneis_train )*repmat(sum(Activations_comp2_tune_is_train_noxjk(:,trial),1),n,1)-theta_comp2_noxjk_tuneis_train)>0 ).*( Activations_comp2_tune_is_train_noxjk(:,trial)-APLgains_noxjk_tuneis_train*repmat(sum(Activations_comp2_tune_is_train_noxjk(:,trial),1),n,1)-theta_comp2_noxjk_tuneis_train);
+%                 
+%                 
+%             end
+%             
+%             %% training of the KC-MBONs output weights
+%             
+%             for l_r=1:lrs
+%                 
+%                 WopAllOdours=1*rand(n,2);
+%                 WopAllOdoursEqualized= WopAllOdours;
+%                 WopAllOdoursHomog_Ftheta=WopAllOdours;
+%                 WopAllOdoursInhPlast=WopAllOdours;
+%                 WopAllOdoursEqualizedComp2=WopAllOdours;
+%                 WopFromPNs= 1*rand(m,2);
+%                 WopAllOdoursThetaActivityHomeo=WopAllOdours;
+%                 WopAllOdoursEqualizedComp2_noxjk=WopAllOdours;
+%                 
+%                 % the weights vectors initial state in the tune_is_train
+%                 % models should be equal to those with tuning set different
+%                 % than training set
+%                 
+%                 WopAllOdours_tune_is_train=WopAllOdours;
+%                 WopAllOdoursEqualized_tune_is_train= WopAllOdours;
+%                 WopAllOdoursHomog_Ftheta_tune_is_train=WopAllOdours;
+%                 WopAllOdoursInhPlast_tune_is_train=WopAllOdours;
+%                 WopAllOdoursEqualizedComp2_tune_is_train=WopAllOdours;
+%                 WopFromPNs_tune_is_train= 1*rand(m,2);
+%                 WopAllOdoursThetaActivityHomeo_tune_is_train=WopAllOdours;
+%                 WopAllOdoursEqualizedComp2_tune_is_train_noxjk=WopAllOdours;
+%                 
+%                 
+%                 alpha=0.000001* (10^((l_r)));
+%                 
+%                 c=1;
+%                 
+%                 YHomog_Fthetatemp=reshape(YHomogdummy_Ftheta,n,odors,numTrials);
+%                 
+%                 Ytemp= reshape(Y,n,odors,numTrials);
+%                 
+%                 YEqualizedtemp=reshape(YEqualized,n,odors,numTrials);
+%                 
+%                 Y_comp2temp= reshape(Y_comp2,n,odors,numTrials);
+%                 
+%                 Y_theta_activity_homeotemp= reshape(Y_theta_activity_homeo,n,odors,numTrials);
+%                 
+%                 Y_inhibPlasttemp= reshape(Y_inhibPlast,n,odors,numTrials);
+%                 Y_comp2temp_noxjk= reshape(Y_comp2_noxjk,n,odors,numTrials);
+%                 
+%                 
+%                 
+%                 % rescale the KC responses to be from 0-1
+%                 Ytemp=rescale(Ytemp);
+%                 YEqualizedtemp=rescale(YEqualizedtemp);
+%                 YHomog_Fthetatemp=rescale(YHomog_Fthetatemp);
+%                 Y_comp2temp=rescale(Y_comp2temp);
+%                 Y_comp2temp_noxjk=rescale(Y_comp2temp_noxjk);
+%                 Y_theta_activity_homeotemp= rescale(Y_theta_activity_homeotemp);
+%                 Y_inhibPlasttemp=rescale(Y_inhibPlasttemp);
+%                 
+%                 YHomog_Fthetatr=YHomog_Fthetatemp(:,:,1:numtrainingSamples);
+%                 
+%                 Ytr=Ytemp(:,:,1:numtrainingSamples);
+%                 
+%                 YEqualizedtr=YEqualizedtemp(:,:,1:numtrainingSamples);
+%                 
+%                 Y_comp2tr= Y_comp2temp(:,:,1:numtrainingSamples);
+%                 
+%                 Y_theta_activity_homeotr= Y_theta_activity_homeotemp(:,:,1:numtrainingSamples);
+%                 
+%                 Y_inhibPlasttr= Y_inhibPlasttemp(:,:,1:numtrainingSamples);
+%                 Y_comp2tr_noxjk= Y_comp2temp_noxjk(:,:,1:numtrainingSamples);
+%                 
+%                 
+%                 % rescaling and reshaping the responses of the
+%                 % tune_is_train data
+%                 
+%                 YHomog_Fthetatemp_tune_is_train=reshape(YHomogdummy_Ftheta_tune_is_train,n,odors,numTrials);
+%                 
+%                 Ytemp_tune_is_train= reshape(Y_tune_is_train,n,odors,numTrials);
+%                 
+%                 YEqualizedtemp_tune_is_train=reshape(YEqualized_tune_is_train,n,odors,numTrials);
+%                 
+%                 Y_comp2temp_tune_is_train= reshape(Y_comp2_tune_is_train,n,odors,numTrials);
+%                 
+%                 Y_theta_activity_homeotemp_tune_is_train= reshape(Y_theta_activity_homeo_tune_is_train,n,odors,numTrials);
+%                 
+%                 Y_inhibPlasttemp_tune_is_train= reshape(Y_inhibPlast_tune_is_train,n,odors,numTrials);
+%                 Y_comp2temp_tune_is_train_noxjk= reshape(Y_comp2_tune_is_train_noxjk,n,odors,numTrials);
+%                 
+%                 
+%                 
+%                 % rescale the KC responses to be from 0-1
+%                 Ytemp_tune_is_train=rescale(Ytemp_tune_is_train);
+%                 
+%                 YEqualizedtemp_tune_is_train=rescale(YEqualizedtemp_tune_is_train);
+%                 
+%                 YHomog_Fthetatemp_tune_is_train=rescale(YHomog_Fthetatemp_tune_is_train);
+%                 
+%                 Y_comp2temp_tune_is_train=rescale(Y_comp2temp_tune_is_train);
+%                 
+%                 Y_theta_activity_homeotemp_tune_is_train= rescale(Y_theta_activity_homeotemp_tune_is_train);
+%                 
+%                 Y_inhibPlasttemp_tune_is_train=rescale(Y_inhibPlasttemp_tune_is_train);
+%                 
+%                 Y_comp2temp_tune_is_train_noxjk=rescale(Y_comp2temp_tune_is_train_noxjk);
+%                 
+%                 
+%                 YHomog_Fthetatr_tune_is_train=YHomog_Fthetatemp_tune_is_train(:,:,1:numtrainingSamples);
+%                 
+%                 Ytr_tune_is_train=Ytemp_tune_is_train(:,:,1:numtrainingSamples);
+%                 
+%                 YEqualizedtr_tune_is_train=YEqualizedtemp_tune_is_train(:,:,1:numtrainingSamples);
+%                 
+%                 Y_comp2tr_tune_is_train= Y_comp2temp_tune_is_train(:,:,1:numtrainingSamples);
+%                 
+%                 Y_theta_activity_homeotr_tune_is_train= Y_theta_activity_homeotemp_tune_is_train(:,:,1:numtrainingSamples);
+%                 
+%                 Y_inhibPlasttr_tune_is_train= Y_inhibPlasttemp_tune_is_train(:,:,1:numtrainingSamples);
+%                 
+%                 Y_comp2tr_tune_is_train_noxjk= Y_comp2temp_tune_is_train_noxjk(:,:,1:numtrainingSamples);
+%                 
+%                 %% learning from a preceptron in the output layer; by Synaptic depression of the
+%                 % input weights to the MBON of the opposing valence.
+%                 
+%                 for odour=1:odors
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         delta =  exp( -(alpha/mean(YHomog_Fthetatr(:)))* sum(YHomog_Fthetatr(:,odour,:),3) );
+%                         
+%                         WopAllOdoursHomog_Ftheta(:,2)= WopAllOdoursHomog_Ftheta(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(YHomog_Fthetatr(:)))* sum(YHomog_Fthetatr(:,odour,:),3) );
+%                         WopAllOdoursHomog_Ftheta(:,1)= WopAllOdoursHomog_Ftheta(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         delta =  exp( -(alpha/mean(Ytr(:)))* sum(Ytr(:,odour,:),3) );
+%                         
+%                         deltaW(:,c)= WopAllOdours(:,2).*(delta-1);
+%                         c=c+1;
+%                         WopAllOdours(:,2)= WopAllOdours(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Ytr(:)))* sum(Ytr(:,odour,:),3) );
+%                         WopAllOdours(:,1)= WopAllOdours(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta = exp( -(alpha/mean(YEqualizedtr(:)))* sum((YEqualizedtr(:,odour,:)),3) );
+%                         
+%                         
+%                         WopAllOdoursEqualized(:,2)= WopAllOdoursEqualized(:,2).*delta;
+%                         
+%                     else
+%                         
+%                         delta =  exp(-(alpha /mean(YEqualizedtr(:)))* sum(YEqualizedtr(:,odour,:),3) );
+%                         WopAllOdoursEqualized(:,1)= WopAllOdoursEqualized(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta =  exp( -(alpha/mean(Y_comp2tr(:)))* sum(Y_comp2tr(:,odour,:),3) );
+%                         
+%                         WopAllOdoursEqualizedComp2(:,2)= WopAllOdoursEqualizedComp2(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Y_comp2tr(:)))* sum(Y_comp2tr(:,odour,:),3) );
+%                         WopAllOdoursEqualizedComp2(:,1)= WopAllOdoursEqualizedComp2(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta =  exp( -(alpha/mean(Y_theta_activity_homeotr(:)))* sum(Y_theta_activity_homeotr(:,odour,:),3) );
+%                         
+%                         WopAllOdoursThetaActivityHomeo(:,2)= WopAllOdoursThetaActivityHomeo(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Y_theta_activity_homeotr(:)))* sum(Y_theta_activity_homeotr(:,odour,:),3) );
+%                         WopAllOdoursThetaActivityHomeo(:,1)= WopAllOdoursThetaActivityHomeo(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta =  exp( -(alpha/mean(Y_inhibPlasttr(:)))* sum(Y_inhibPlasttr(:,odour,:),3) );
+%                         
+%                         WopAllOdoursInhPlast(:,2)= WopAllOdoursInhPlast(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Y_inhibPlasttr(:)))* sum(Y_inhibPlasttr(:,odour,:),3) );
+%                         WopAllOdoursInhPlast(:,1)= WopAllOdoursInhPlast(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta =  exp( -(alpha/mean(Y_comp2tr_noxjk(:)))* sum(Y_comp2tr_noxjk(:,odour,:),3) );
+%                         
+%                         WopAllOdoursEqualizedComp2_noxjk(:,2)= WopAllOdoursEqualizedComp2_noxjk(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Y_comp2tr_noxjk(:)))* sum(Y_comp2tr_noxjk(:,odour,:),3) );
+%                         WopAllOdoursEqualizedComp2_noxjk(:,1)= WopAllOdoursEqualizedComp2_noxjk(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     %% do training for the output perceptrons from the tune_is_train responses
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         delta =  exp( -(alpha/mean(YHomog_Fthetatr_tune_is_train(:)))* sum(YHomog_Fthetatr_tune_is_train(:,odour,:),3) );
+%                         
+%                         WopAllOdoursHomog_Ftheta_tune_is_train(:,2)= WopAllOdoursHomog_Ftheta_tune_is_train(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(YHomog_Fthetatr_tune_is_train(:)))* sum(YHomog_Fthetatr_tune_is_train(:,odour,:),3) );
+%                         WopAllOdoursHomog_Ftheta_tune_is_train(:,1)= WopAllOdoursHomog_Ftheta_tune_is_train(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         delta =  exp( -(alpha/mean(Ytr_tune_is_train(:)))* sum(Ytr_tune_is_train(:,odour,:),3) );
+%                         
+%                         WopAllOdours_tune_is_train(:,2)= WopAllOdours_tune_is_train(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Ytr_tune_is_train(:)))* sum(Ytr_tune_is_train(:,odour,:),3) );
+%                         WopAllOdours_tune_is_train(:,1)= WopAllOdours_tune_is_train(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta = exp( -(alpha/mean(YEqualizedtr_tune_is_train(:)))* sum((YEqualizedtr_tune_is_train(:,odour,:)),3) );
+%                         
+%                         
+%                         WopAllOdoursEqualized_tune_is_train(:,2)= WopAllOdoursEqualized_tune_is_train(:,2).*delta;
+%                         
+%                     else
+%                         
+%                         delta =  exp(-(alpha /mean(YEqualizedtr_tune_is_train(:)))* sum(YEqualizedtr_tune_is_train(:,odour,:),3) );
+%                         WopAllOdoursEqualized_tune_is_train(:,1)= WopAllOdoursEqualized_tune_is_train(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta =  exp( -(alpha/mean(Y_comp2tr_tune_is_train(:)))* sum(Y_comp2tr_tune_is_train(:,odour,:),3) );
+%                         
+%                         WopAllOdoursEqualizedComp2_tune_is_train(:,2)= WopAllOdoursEqualizedComp2_tune_is_train(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Y_comp2tr_tune_is_train(:)))* sum(Y_comp2tr_tune_is_train(:,odour,:),3) );
+%                         WopAllOdoursEqualizedComp2_tune_is_train(:,1)= WopAllOdoursEqualizedComp2_tune_is_train(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta =  exp( -(alpha/mean(Y_theta_activity_homeotr_tune_is_train(:)))* sum(Y_theta_activity_homeotr_tune_is_train(:,odour,:),3) );
+%                         
+%                         WopAllOdoursThetaActivityHomeo_tune_is_train(:,2)= WopAllOdoursThetaActivityHomeo_tune_is_train(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Y_theta_activity_homeotr_tune_is_train(:)))* sum(Y_theta_activity_homeotr_tune_is_train(:,odour,:),3) );
+%                         
+%                         WopAllOdoursThetaActivityHomeo_tune_is_train(:,1)= WopAllOdoursThetaActivityHomeo_tune_is_train(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta =  exp( -(alpha/mean(Y_inhibPlasttr_tune_is_train(:)))* sum(Y_inhibPlasttr_tune_is_train(:,odour,:),3) );
+%                         
+%                         WopAllOdoursInhPlast_tune_is_train(:,2)= WopAllOdoursInhPlast_tune_is_train(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Y_inhibPlasttr_tune_is_train(:)))* sum(Y_inhibPlasttr_tune_is_train(:,odour,:),3) );
+%                         WopAllOdoursInhPlast_tune_is_train(:,1)= WopAllOdoursInhPlast_tune_is_train(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     if( ~ isempty(find(classAction1==odour)) )
+%                         
+%                         delta =  exp( -(alpha/mean(Y_comp2tr_tune_is_train_noxjk(:)))* sum(Y_comp2tr_tune_is_train_noxjk(:,odour,:),3) );
+%                         
+%                         WopAllOdoursEqualizedComp2_tune_is_train_noxjk(:,2)= WopAllOdoursEqualizedComp2_tune_is_train_noxjk(:,2) .*delta;
+%                         
+%                     else
+%                         
+%                         delta = exp(- (alpha/mean(Y_comp2tr_tune_is_train_noxjk(:)))* sum(Y_comp2tr_tune_is_train_noxjk(:,odour,:),3) );
+%                         WopAllOdoursEqualizedComp2_tune_is_train_noxjk(:,1)= WopAllOdoursEqualizedComp2_tune_is_train_noxjk(:,1) .*delta;
+%                         
+%                     end
+%                     
+%                     
+%                     
+%                 end
+%                 
+%                 %% perfromance as a function of the strictness of the decision making
+%                 %% this strictness is dictated by C in the soft-max function.
+%                 %% so given the same fly, same task, and after learning measure the performance as f(c)
+%                 
+%                 for c=1:Crange
+%                     
+%                     
+%                     C=C_SoftMax*(10^c);
+%                     
+%                     [acc,accEq,accEq2, accKenn,accInhPlast,acc_comp2_noxjk]=Robustness_testing(C,WopAllOdours,WopAllOdoursEqualized,WopAllOdoursEqualizedComp2, WopAllOdoursThetaActivityHomeo, WopAllOdoursInhPlast, WopAllOdoursEqualizedComp2_noxjk,...
+%                         classAction1,numTrials,numtrainingSamples,Ytemp,YEqualizedtemp,Y_comp2temp,Y_theta_activity_homeotemp,Y_inhibPlasttemp,Y_comp2temp_noxjk);
+%                     
+%                     test_p_raEq(randomTrials,tune,l_r,c)=accEq;
+%                     test_p_ra(randomTrials,tune,l_r,c)=acc;
+%                     test_p_raEq2(randomTrials,tune,l_r,c)=accEq2;
+%                     test_p_raThetaActivity_homeo(randomTrials,tune,l_r,c)= accKenn;
+%                     test_p_raInhPlast(randomTrials,tune,l_r,c)= accInhPlast;
+%                     test_p_raEq2_noxjk(randomTrials,tune,l_r,c)=acc_comp2_noxjk;
+%                     
+%                     
+%                     % testing of the tuned models in a familiar environment.
+%                     [acc_tune_is_train,accEq_tune_is_train,accEq2_tune_is_train, accKenn_tune_is_train,accInhPlast_tune_is_train,accEq2_tune_is_train_noxjk]=Robustness_testing(C,WopAllOdours_tune_is_train,WopAllOdoursEqualized_tune_is_train,WopAllOdoursEqualizedComp2_tune_is_train, WopAllOdoursThetaActivityHomeo_tune_is_train, WopAllOdoursInhPlast_tune_is_train,WopAllOdoursEqualizedComp2_tune_is_train_noxjk,...
+%                         classAction1,numTrials,numtrainingSamples,Ytemp_tune_is_train,YEqualizedtemp_tune_is_train,Y_comp2temp_tune_is_train,Y_theta_activity_homeotemp_tune_is_train,Y_inhibPlasttemp_tune_is_train,Y_comp2temp_tune_is_train_noxjk);
+%                     
+%                     test_p_raEq_tune_is_train(randomTrials,tune,l_r,c)=accEq_tune_is_train;
+%                     test_p_ra_tune_is_train(randomTrials,tune,l_r,c)=acc_tune_is_train;
+%                     test_p_raEq2_tune_is_train(randomTrials,tune,l_r,c)=accEq2_tune_is_train;
+%                     test_p_raThetaActivity_homeo_tune_is_train(randomTrials,tune,l_r,c)= accKenn_tune_is_train;
+%                     test_p_raInhPlast_tune_is_train(randomTrials,tune,l_r,c)= accInhPlast_tune_is_train;
+%                     test_p_raEq2_noxjk_tune_is_train(randomTrials,tune,l_r,c)=accEq2_tune_is_train_noxjk;
+%                     
+%                     
+%                     
+%                     [accH1]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta,PNtrials_tune_train, thetaH_Ftheta,InhibitionGain, APLgains,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp);
+%                     
+%                     test_p_raH_FixedTheta(randomTrials,tune,l_r,c)=accH1;
+%                     
+%                     
+%                     [accH1_tune_is_train]=HomogenousModel_KernelTesting(C,WopAllOdoursHomog_Ftheta_tune_is_train,PNtrials_tune_train, thetaH_Ftheta_tune_is_train,InhibitionGain_tune_is_train, APLgains_tune_is_train,classAction1,numTrials,numtrainingSamples,YHomog_Fthetatemp_tune_is_train);
+%                     
+%                     test_p_raH_FixedTheta_tune_is_train(randomTrials,tune,l_r,c)=accH1_tune_is_train;
+%                     
+%                 end
+%                 
+%                 
+%                 
+%             end
+%             
+%             
         end
         
      disp (strcat('tune',num2str(tune)))   

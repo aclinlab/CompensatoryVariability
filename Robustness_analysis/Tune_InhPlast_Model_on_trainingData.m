@@ -15,10 +15,10 @@ codingLevel=[];
 
 iterr=1;
 avgActTrace=[];
-
-while(~conditions)
+iter_till_exit=0;
+while(~conditions && (iter_till_exit<10000))
     
-    
+    iter_till_exit=iter_till_exit+1;
     % with inhibition gain absent
     
     for trial = 1:(odorsTuning_training*numtrainingSamples)
@@ -135,9 +135,3 @@ while(~conditions)
     iterr=iterr+1;
     
 end
-
-Clevels_tune_is_train (end+1)=CL_;
-INHAbs_CL_tune_is_train(end+1)=InhAbs_CL;
-theta_inhibitionPlast_tune_is_train=(C_1.*theta_inhibitionPlast_tune_is_train);
-toc
-disp('finished inhplast on training');
