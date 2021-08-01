@@ -738,7 +738,7 @@ for randomTrials=1:ll
                  theta_comp2_noxjk=(C_.*theta_comp2_noxjk); 
                  toc
                  disp('blue model done');
-                 continue;
+                
              else
                  disp('blue model failed to converge on unseen data');
                  thisW_ActivityBasedComp_noxjk(find(thisW_ActivityBasedComp_noxjk))=nan;
@@ -762,7 +762,6 @@ for randomTrials=1:ll
                 theta_comp2_noxjk_tuneis_train=(C_.*theta_comp2_noxjk_tuneis_train);
                 toc
                 disp('finished tune noxjk on training');
-                 continue;
              else
                  disp('blue model failed to converge on training data');
                  thisW_ActivityBasedComp_noxjk_tuneis_train(find(thisW_ActivityBasedComp_noxjk_tuneis_train))=nan;
@@ -924,7 +923,7 @@ for randomTrials=1:ll
                  theta_comp2=(C_.*theta_comp2);                
                  toc
                  disp('dark blue model done');
-                 continue;
+                 
              else
                  disp('dark blue model failed to converge on unseen data');
                  thisW_ActivityBasedComp(find(thisW_ActivityBasedComp))=nan;
