@@ -18,17 +18,14 @@ for trials=numtrainingSamples+1:numTrials
         
         %%
         
-        if (~ isempty(find(classAction1==odour)) )
+        if (~ isempty(find(classAction1==odour,1)) )
             
             
             pr_action1=  1/(1+exp(C*(z2-z1)));
             
             p_ra=p_ra+(pr_action1/odors);
             
-        end
-        
-        if ( isempty((find(classAction1==odour))) )
-            
+        else            
             
             pr_action2=  1/(exp(C*(z1-z2))+1);
             
