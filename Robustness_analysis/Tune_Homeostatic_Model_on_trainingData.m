@@ -13,11 +13,11 @@ epsilon= A0(1)*0.07;
 conditions=0;
 % APLgains_tune_is_train(3) = 4.5e-5;
 % C_1 = 1;
-
+iter_till_exit=0;
 t=1;
-while(~conditions)
+while(~conditions && (iter_till_exit<10000))
     
-    
+    iter_till_exit=iter_till_exit+1;
     eta=10;
     % with inhibition gain absent
     for trial = 1:(odorsTuning_training*numtrainingSamples)
@@ -158,7 +158,3 @@ while(~conditions)
     
     
 end
-
-theta_comp2_tune_is_train=(C_1.*theta_comp2_tune_is_train);
-toc
-disp('finished Homeostatic model on training')
