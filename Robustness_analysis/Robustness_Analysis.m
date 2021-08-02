@@ -744,7 +744,7 @@ for randomTrials=1:ll
                  thisW_ActivityBasedComp_noxjk(find(thisW_ActivityBasedComp_noxjk))=nan;
                  theta_comp2_noxjk=ones(2000,1).*nan;
                  APLgains_noxjk=nan;
-                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_blue_unseenData'),'theta_comp2_noxjk_0','initial_thisW_ActivityBasedComp');
+                 save(strcat('fly',num2str(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_blue_unseenData'),'theta_comp2_noxjk_0','initial_thisW_ActivityBasedComp');
                  
              end
 
@@ -767,7 +767,7 @@ for randomTrials=1:ll
                  thisW_ActivityBasedComp_noxjk_tuneis_train(find(thisW_ActivityBasedComp_noxjk_tuneis_train))=nan;
                  theta_comp2_noxjk_tuneis_train=ones(2000,1).*nan;
                  APLgains_noxjk_tuneis_train=nan;
-                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_blue_trainingData'),'theta_comp2_noxjk_0','initial_thisW_ActivityBasedComp');
+                 save(strcat('fly',num2str(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_blue_trainingData'),'theta_comp2_noxjk_0','initial_thisW_ActivityBasedComp');
                  
              end
 
@@ -929,7 +929,7 @@ for randomTrials=1:ll
                  thisW_ActivityBasedComp(find(thisW_ActivityBasedComp))=nan;
                  theta_comp2=ones(2000,1).*nan;
                  APLgains(3)=nan;
-                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_darkBlue_unseenData'),'theta_comp2_0','initial_thisW_ActivityBasedComp');
+                 save(strcat('fly',num2str(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_darkBlue_unseenData'),'theta_comp2_0','initial_thisW_ActivityBasedComp');
                  
              end
 
@@ -955,7 +955,7 @@ for randomTrials=1:ll
                  thisW_ActivityBasedComp_tune_is_train(find(thisW_ActivityBasedComp_tune_is_train))=nan;
                  theta_comp2_tune_is_train=ones(2000,1).*nan;
                  APLgains_tune_is_train(3)=nan;
-                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_darkBlue_trainingData'),'theta_comp2_0','initial_thisW_ActivityBasedComp');
+                 save(strcat('fly',num2str(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_darkBlue_trainingData'),'theta_comp2_0','initial_thisW_ActivityBasedComp');
                  
                 
             end
@@ -1133,7 +1133,7 @@ for randomTrials=1:ll
                 disp('magenta model failed to converge on unseen data');
                  theta_Activity_homeo=ones(2000,1).*nan;
                  APLgains(4)=nan;
-                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_magenta_unseenData'),'thisW_Kennedy','theta_Activity_homeo_0');
+                 save(strcat('fly',num2str(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_magenta_unseenData'),'thisW_Kennedy','theta_Activity_homeo_0');
                  
                 
             end
@@ -1157,7 +1157,7 @@ for randomTrials=1:ll
                  disp('magenta model failed to converge on training data');
                  theta_Activity_homeo_tune_is_train=ones(2000,1).*nan;
                  APLgains_tune_is_train(4)=nan;
-                 save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_magenta_trainingData'),'thisW_Kennedy','theta_Activity_homeo_0');
+                 save(strcat('fly',num2str(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_magenta_trainingData'),'thisW_Kennedy','theta_Activity_homeo_0');
             end
            
             
@@ -1313,7 +1313,7 @@ for randomTrials=1:ll
                 disp('failed to converge on green model unseen data')
                 theta_inhibitionPlast=ones(2000,1).*nan;
                 APLgains_model6=ones(2000,1).*nan;
-                save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_green_unseenData'),'thisW_ActivityBasedComp_inhibitionPlast','theta_inhibitionPlast_0');
+                save(strcat('fly',num2str(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_green_unseenData'),'thisW_ActivityBasedComp_inhibitionPlast','theta_inhibitionPlast_0');
 
             end
             
@@ -1334,7 +1334,7 @@ for randomTrials=1:ll
                 disp('failed to converge on green model training data')
                 theta_inhibitionPlast_tune_is_train=ones(2000,1).*nan;
                 APLgains_model6_tune_is_train=ones(2000,1).*nan;
-                save(strcat('fly',num2tsr(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_green_trainingData'),'thisW_ActivityBasedComp_inhibitionPlast','theta_inhibitionPlast_0');
+                save(strcat('fly',num2str(randomTrials),'_failed_to_converge_on_tune',num2str(tune),'_model_green_trainingData'),'thisW_ActivityBasedComp_inhibitionPlast','theta_inhibitionPlast_0');
 
             end
             
