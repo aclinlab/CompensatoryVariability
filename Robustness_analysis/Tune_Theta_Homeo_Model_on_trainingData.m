@@ -19,11 +19,19 @@ else
     epsilon= A0(1)*0.07;
     
 end
+if tune==3
+    eta_0 = 0.15;
+else
 eta_0=0.05;
+end
 drop_1=0.7;
 iterrDrop_1=1000;
 
+if tune==3
+    eta_gradAct_theta_0 = 0.3;
+else
 eta_gradAct_theta_0=0.15;%0.05;
+end
 drop=0.7;
 iterDrop=1000;
 avgact_trace=[];
@@ -64,7 +72,12 @@ while(~conditions && (iter_till_exit<10000))
     
     
     %% CL=10% constraint
+    
+    if tune==3
+        eta_2 = 1e-8;
+    else
     eta_2=0.000000005;
+    end
     
     for trial = 1:(odorsTuning_training*numtrainingSamples)
         Activations(:,trial) = (thisW_Kennedy)'*PNtrials_tune_train(:,trial);
