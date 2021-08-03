@@ -989,7 +989,11 @@ for randomTrials=1:ll
             A=zeros(n,odorsTuning*numtrainingSamples);
             Y_d=zeros(n,odorsTuning*numtrainingSamples);
             Y_= zeros(n,odorsTuning*numtrainingSamples);
+            if tune==3
+                A0=0.26.*ones(n,1);
+            else
             A0=(0.3).*ones(n,1);
+            end
             epsilon= A0(1)*0.07;
             C_=1;
             t=1;
@@ -1142,7 +1146,11 @@ for randomTrials=1:ll
             % the odors that will be then used for training too.
             
             C_1=1;
+            if tune==3
+                theta_Activity_homeo_0= 5+ 1.*rand(2000,1);
+            else
             theta_Activity_homeo_0= 2+ 1.*rand(2000,1);
+            end
             theta_Activity_homeo_tune_is_train=theta_Activity_homeo_0;
            
             Tune_Theta_Homeo_Model_on_trainingData;
@@ -1340,8 +1348,8 @@ for randomTrials=1:ll
             
             
             
-            %% if the loops broke without the constraints being statisfied. then
-            %% print an error message
+            % if the loops broke without the constraints being statisfied. then
+            % print an error message
             
             if( (any(APLgains<0)) || (any(APLgains_tune_is_train<0))  )
                 
@@ -1361,6 +1369,21 @@ for randomTrials=1:ll
                     'theta_comp2_noxjk_tuneis_train','APLgains_noxjk_tuneis_train');
                 
             end
+ 
+% %         green model only
+%             save( strcat('robustnessTest_tunedSubgroup_trainedAllOtherGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale),'green']) , ...
+%                 'theta_inhibitionPlast','APLgains_model6','thisW_ActivityBasedComp_inhibitionPlast');
+%             
+%             save( strcat('robustnessTest_tuned_and_trained_onSameGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale),'green']) , ...
+%                 'theta_inhibitionPlast_tune_is_train','APLgains_model6_tune_is_train','thisW_ActivityBasedComp_inhibitionPlast');
+
+%             %magenta model only
+%             save( strcat('robustnessTest_tunedSubgroup_trainedAllOtherGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale),'magenta']) , ...
+%                 'thisW_Kennedy','theta_Activity_homeo','APLgains');
+%             
+%             save( strcat('robustnessTest_tuned_and_trained_onSameGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale),'magenta']) , ...
+%                 'theta_Activity_homeo_tune_is_train','thisW_Kennedy','APLgains_tune_is_train');
+           
 %             %% training and testing of the tuned models
 %             
 %             Activations=zeros(n,odors*numTrials);
