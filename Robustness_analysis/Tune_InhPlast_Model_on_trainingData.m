@@ -1,6 +1,6 @@
 tic
 if (tune~=3)
-    A0=(0.4).*ones(n,1);
+    A0=(0.5).*ones(n,1);
     epsilon= A0(1)*0.07;
 else
     A0=(0.4).*ones(n,1);
@@ -35,7 +35,11 @@ while(~conditions && (iter_till_exit<10000))
     
     depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_inhibitionPlast_tune_is_train,1,odorsTuning_training*numtrainingSamples));
     
+    if tune==4
+        eta=50;
+    else
     eta=15; %*(0.7^(floor(iterr/2000)));
+    end
     
     Grad= ((InhAbs_CL)-0.20)*(1/(n*odorsTuning_training*numtrainingSamples))*(sum(depsi1_dtheta(:) ));
     
@@ -76,7 +80,11 @@ while(~conditions && (iter_till_exit<10000))
     
     dYik_dalphai= -(repmat(dAct_dalpha,n,1));
     
+    if tune==4
+        eta_o1 = 0.002;
+    else
     eta_o1= 0.01; %0.15; %0.002;
+    end
     eta_o2= 5e-7; %0.00000005;
     
     Grad_alpha1= ( ((eta_o1)) .*((CL_)-0.10)*(1/(n*odorsTuning_training*numtrainingSamples)).*(sum(dsig_dalpha,2)) );
