@@ -51,13 +51,13 @@ while(~conditions && (iter_till_exit<10000))
     end
     
     %
-    A=zeros(n,odorsTuning_training*numtrainingSamples);
+    %A=zeros(n,odorsTuning_training*numtrainingSamples);
     Y_d=zeros(n,odorsTuning_training*numtrainingSamples);
     codingLevel=[];
     
     for trial = 1:(odorsTuning_training*numtrainingSamples)
         
-        A(:,trial) = thisW_ActivityBasedComp_inhibitionPlast'*PNtrials_tune_train(:,trial);
+        %A(:,trial) = thisW_ActivityBasedComp_inhibitionPlast'*PNtrials_tune_train(:,trial);
         Y_d(:,trial)=(( A(:,trial)-(APLgains_model6_tune_is_train.*(sum(A(:,trial),1)))-(C_1.*theta_inhibitionPlast_tune_is_train))>0 ).*( A(:,trial)-(APLgains_model6_tune_is_train.*(sum(A(:,trial),1)))-(C_1.*theta_inhibitionPlast_tune_is_train));
         codingLevel(trial)=  (sum(Y_d(:,trial)>0,1)/n);
     end
