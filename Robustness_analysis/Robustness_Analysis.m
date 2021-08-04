@@ -983,7 +983,11 @@ for randomTrials=1:ll
             APLgains(4)=0;
             APLgains_tune_is_train(4)=0;
             
-            theta_Activity_homeo_0=  5+ 1.*rand(2000,1); %% avoid negative values of theta
+            if tune==3
+                theta_Activity_homeo_0=  10+ 1.*rand(2000,1);
+            else
+                theta_Activity_homeo_0=  5+ 1.*rand(2000,1); %% avoid negative values of theta
+            end
             conditions=0;
             theta_Activity_homeo=theta_Activity_homeo_0;
             A=zeros(n,odorsTuning*numtrainingSamples);
@@ -992,7 +996,7 @@ for randomTrials=1:ll
             if tune==3
                 A0=0.26.*ones(n,1);
             else
-            A0=(0.3).*ones(n,1);
+                A0=(0.3).*ones(n,1);
             end
             epsilon= A0(1)*0.07;
             C_=1;
@@ -1003,7 +1007,11 @@ for randomTrials=1:ll
             iterDrop=1000;
             cw=1;
             
-            eta_0=0.05;
+            if tune==3
+                eta_0 = 0.01;
+            else
+                eta_0=0.05;
+            end
             drop_1=0.5;
             iterrDrop_1=1000;
             
@@ -1379,10 +1387,10 @@ for randomTrials=1:ll
 
 %             %magenta model only
 %             save( strcat('robustnessTest_tunedSubgroup_trainedAllOtherGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale),'magenta']) , ...
-%                 'thisW_Kennedy','theta_Activity_homeo','APLgains');
+%                 'thisW_Kennedy','theta_Activity_homeo','APLgains','PNtrials');
 %             
 %             save( strcat('robustnessTest_tuned_and_trained_onSameGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale),'magenta']) , ...
-%                 'theta_Activity_homeo_tune_is_train','thisW_Kennedy','APLgains_tune_is_train');
+%                 'theta_Activity_homeo_tune_is_train','thisW_Kennedy','APLgains_tune_is_train','PNtrials_tune_train');
            
 %             %% training and testing of the tuned models
 %             
@@ -1466,10 +1474,10 @@ for randomTrials=1:ll
 %                 
 %                 
 %                 Activations_inhibPlast(:,trial) = thisW_ActivityBasedComp_inhibitionPlast'*PNtrials_tune_train(:,trial );
-%                 Y_inhibPlast(:,trial)=(( Activations_inhibPlast(:,trial)-(APLgains_model6 )./(n).*repmat(sum(Activations_inhibPlast(:,trial),1),n,1)-theta_inhibitionPlast)>0 ).*( Activations_inhibPlast(:,trial)-APLgains_model6./(n).*repmat(sum(Activations_inhibPlast(:,trial),1),n,1)-theta_inhibitionPlast);
+%                 Y_inhibPlast(:,trial)=(( Activations_inhibPlast(:,trial)-(APLgains_model6 ).*repmat(sum(Activations_inhibPlast(:,trial),1),n,1)-theta_inhibitionPlast)>0 ).*( Activations_inhibPlast(:,trial)-APLgains_model6.*repmat(sum(Activations_inhibPlast(:,trial),1),n,1)-theta_inhibitionPlast);
 %                 %
 %                 Activations_inhibPlast_tune_is_train(:,trial) = thisW_ActivityBasedComp_inhibitionPlast'*PNtrials_tune_train(:,trial );
-%                 Y_inhibPlast_tune_is_train(:,trial)=(( Activations_inhibPlast_tune_is_train(:,trial)-(APLgains_model6_tune_is_train )./(n).*repmat(sum(Activations_inhibPlast_tune_is_train(:,trial),1),n,1)-theta_inhibitionPlast_tune_is_train)>0 ).*( Activations_inhibPlast_tune_is_train(:,trial)-APLgains_model6_tune_is_train./(n).*repmat(sum(Activations_inhibPlast_tune_is_train(:,trial),1),n,1)-theta_inhibitionPlast_tune_is_train);
+%                 Y_inhibPlast_tune_is_train(:,trial)=(( Activations_inhibPlast_tune_is_train(:,trial)-(APLgains_model6_tune_is_train ).*repmat(sum(Activations_inhibPlast_tune_is_train(:,trial),1),n,1)-theta_inhibitionPlast_tune_is_train)>0 ).*( Activations_inhibPlast_tune_is_train(:,trial)-APLgains_model6_tune_is_train.*repmat(sum(Activations_inhibPlast_tune_is_train(:,trial),1),n,1)-theta_inhibitionPlast_tune_is_train);
 %                 
 %                 Activations_comp2_noxjk(:,trial) = thisW_ActivityBasedComp_noxjk'*PNtrials_tune_train(:,trial );
 %                 Y_comp2_noxjk(:,trial)=(( Activations_comp2_noxjk(:,trial)-(APLgains_noxjk )*repmat(sum(Activations_comp2_noxjk(:,trial),1),n,1)-theta_comp2_noxjk)>0 ).*( Activations_comp2_noxjk(:,trial)-APLgains_noxjk*repmat(sum(Activations_comp2_noxjk(:,trial),1),n,1)-theta_comp2_noxjk);
