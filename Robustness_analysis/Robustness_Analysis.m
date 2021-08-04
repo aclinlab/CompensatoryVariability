@@ -1234,8 +1234,11 @@ for randomTrials=1:ll
                 
                 depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_inhibitionPlast,1,odorsTuning*numtrainingSamples));
                 
-                % decaying learning rate
-                eta=15; %5; %*(0.7^(floor(iterr/1000)));
+                if tune==3
+                    eta=50;
+                else
+                    eta=15; %5; %*(0.7^(floor(iterr/1000))); % decaying learning rate
+                end
                 
                 Grad= ((InhAbs_CL)-0.20)*(1/(n*odorsTuning*numtrainingSamples))*(sum(depsi1_dtheta(:) ));
                 
@@ -1271,7 +1274,11 @@ for randomTrials=1:ll
                 
                 dYik_dalphai= -(repmat(dAct_dalpha,n,1));
                 
-                eta_o1= 0.01;
+                if tune==3
+                    eta_01 = 0.002;
+                else
+                    eta_o1= 0.01;
+                end
                 eta_o2= 5e-7;%1e-6; %5e-7;
                 
                 Grad_alpha1= ( ((eta_o1)) .*((CL_)-0.10)*(1/(n*odorsTuning*numtrainingSamples)).*(sum(dsig_dalpha,2)) ) ;
