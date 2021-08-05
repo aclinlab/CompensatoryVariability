@@ -1280,7 +1280,7 @@ for randomTrials=1:ll
                 dYik_dalphai= -(repmat(dAct_dalpha,n,1));
                 
                 if tune==3
-                    eta_01 = 0.002;
+                    eta_o1 = 0.002;
                 else
                     eta_o1= 0.01;
                 end
