@@ -5,10 +5,10 @@
 clc
 clear all;
 
-% randomly 16 odor samples from the Alcohols and esters groups
-% to balance the training samples in all chemical classes, 16 odor.
+% randomly 15 odor samples from the Alcohols and esters groups
+% to balance the training samples in all chemical classes, 15 odor.
 
-load('random16AlcoandEsters.mat')
+load('random15TerpeneAlcoholEsters.mat')
 
 load('hallem_olsen.mat');
 load('PW_given_N.mat');
@@ -31,22 +31,23 @@ C_SoftMax=1;
 NScales=1;
 
 % each random instantiation of the network, a model fly,
-% will recieve 16 odors in each chemical group, different 16 samples
-% from esters and alcohols.
+% will recieve 15 odors in each chemical group, different 15 samples
+% from terpenes, esters and alcohols.
 
 for seq=1:20
     
     alcohols= AlcoOds{seq};
     esters= EstersOds{seq};
+    terpenes = TerpeneOds{seq};
     
-    odorsSet{seq}= [9:23,26:41,esters,alcohols]';
+    odorsSet{seq}= [9:23,terpenes,esters,alcohols]';
     
 end
 
-tuneindexs{1}=[1:15]; %acids
-tuneindexs{2}=[16:31]; %terpenes
-tuneindexs{3}=[32:47]; %esters
-tuneindexs{4}=[48:63]; %alcohols
+tuneindexs{1}=1:15; %acids
+tuneindexs{2}=16:30; %terpenes
+tuneindexs{3}=31:45; %esters
+tuneindexs{4}=46:60; %alcohols
 
 
 for randomTrials=1:ll
@@ -172,7 +173,7 @@ for randomTrials=1:ll
         indexTuningOdors= tuneindexs{tune}';
         
         %train and test on others
-        indexTrainingOdors= find(~ismember([1:63]',indexTuningOdors));
+        indexTrainingOdors= find(~ismember((1:60)',indexTuningOdors));
         
         odorsTuning=size(indexTuningOdors,1);
         odorsTuning_training= size(indexTrainingOdors,1);
@@ -210,10 +211,14 @@ for randomTrials=1:ll
             end
             
             PNtrials(PNtrials<0)=0;
-            PNtrials=rescale(PNtrials,0,5);
-            
             PNtrials_tune_train(PNtrials_tune_train<0)=0;
-            PNtrials_tune_train=rescale(PNtrials_tune_train,0,5);
+            combinePNs = cat(2,PNtrials,PNtrials_tune_train);
+            combinePNs = rescale(combinePNs,0,5);
+            PNtrials = combinePNs(:,1:odorsTuning,:);
+            PNtrials_tune_train = combinePNs(:,(odorsTuning+1):end,:);
+%             PNtrials=rescale(PNtrials,0,5);
+            
+%             PNtrials_tune_train=rescale(PNtrials_tune_train,0,5);
             
             APLgainP= zeros(1,2);
             APLgainP_tune_train= zeros(1,2);
