@@ -15,22 +15,22 @@ if(tune~=3)
     
 else
     
-    A0=(0.3).*ones(n,1);
+    A0=(0.35).*ones(n,1);
     epsilon= A0(1)*0.07;
     
 end
 if tune==3
     eta_0 = 0.15;
 else
-eta_0=0.05;
+    eta_0=0.05;
 end
 drop_1=0.7;
 iterrDrop_1=1000;
 
 if tune==3
-    eta_gradAct_theta_0 = 0.3;
+    eta_gradAct_theta_0 = 0.15; %0.3;
 else
-eta_gradAct_theta_0=0.15;%0.05;
+    eta_gradAct_theta_0=0.15;%0.05;
 end
 drop=0.7;
 iterDrop=1000;
