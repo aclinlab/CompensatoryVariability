@@ -1,5 +1,8 @@
 tic
-if (tune~=3)
+if tune==2||tune==1
+    A0=(0.45).*ones(n,1);
+    epsilon= A0(1)*0.07;
+elseif(tune~=3)
     A0=(0.5).*ones(n,1);
     epsilon= A0(1)*0.07;
 else
@@ -36,6 +39,8 @@ while(~conditions && (iter_till_exit<10000))
     depsi1_dtheta= -(Y_d>0).* depsi1_dy.* (repmat(theta_inhibitionPlast_tune_is_train,1,odorsTuning_training*numtrainingSamples));
     
     if tune==4
+        eta=50;
+    elseif tune==2 || tune==1
         eta=50;
     else
     eta=15; %*(0.7^(floor(iterr/2000)));
