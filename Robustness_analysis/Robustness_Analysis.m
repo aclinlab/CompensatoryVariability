@@ -1392,10 +1392,10 @@ for randomTrials=1:ll
  
 %         green model only
             save( strcat('robustnessTest_tunedSubgroup_trainedAllOtherGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale),'green']) , ...
-                'theta_inhibitionPlast','APLgains_model6','thisW_ActivityBasedComp_inhibitionPlast');
+                'theta_inhibitionPlast','APLgains_model6','thisW_ActivityBasedComp_inhibitionPlast','PNtrials');
             
             save( strcat('robustnessTest_tuned_and_trained_onSameGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale),'green']) , ...
-                'theta_inhibitionPlast_tune_is_train','APLgains_model6_tune_is_train','thisW_ActivityBasedComp_inhibitionPlast');
+                'theta_inhibitionPlast_tune_is_train','APLgains_model6_tune_is_train','thisW_ActivityBasedComp_inhibitionPlast','PNtrials_tune_train');
 
             %magenta model only
             save( strcat('robustnessTest_tunedSubgroup_trainedAllOtherGroups_BalancedEsters_and_Alcohols_tuneNo_',num2str(tune),[' _fly_wNoise',num2str(randomTrials),num2str(noiseScale),'magenta']) , ...
