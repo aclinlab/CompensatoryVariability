@@ -23,7 +23,7 @@ lrs=7;
 Crange=1;
 
 % start parallel local thread
-%p=parpool(6);
+p=parpool(6);
 p.IdleTimeout = 10000;
 parfevalOnAll(@maxNumCompThreads,0,6)
 
@@ -979,7 +979,7 @@ for randomTrials=1:ll
             
             % pre-scaling the PN-KC weight matrix to achieve the
             % target activity level.
-            if(tune~=3)
+            if 1%(tune~=3)
                 thisW_Kennedy=5.5.*thisW_Kennedy_0;
             else
                 thisW_Kennedy= 4.0.*thisW_Kennedy_0;
@@ -989,7 +989,7 @@ for randomTrials=1:ll
             APLgains_tune_is_train(4)=0;
             
             if tune==3
-                theta_Activity_homeo_0=  10+ 1.*rand(2000,1);
+                theta_Activity_homeo_0=  5+ 1.*rand(2000,1);
             else
                 theta_Activity_homeo_0=  5+ 1.*rand(2000,1); %% avoid negative values of theta
             end
@@ -999,7 +999,7 @@ for randomTrials=1:ll
             Y_d=zeros(n,odorsTuning*numtrainingSamples);
             Y_= zeros(n,odorsTuning*numtrainingSamples);
             if tune==3
-                A0=0.26.*ones(n,1);
+                A0=0.33.*ones(n,1);
             else
                 A0=(0.3).*ones(n,1);
             end
