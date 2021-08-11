@@ -81,6 +81,7 @@ error=10;
 
 
 while(abs(error)>0.03)
+    disp(abs(error))
     
     GradJ_sigma=0;
     GradJ_k=0;

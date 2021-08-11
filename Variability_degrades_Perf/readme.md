@@ -1,8 +1,6 @@
-## These scripts can be used to reproduce the results of Figure 2, 3, 4 and S1. 
+## These scripts can be used to reproduce the results of Figure 2, 3, S1 and S2. 
 
-Running **VarDegradesPerf.m** will run its required functions and generate the following in your current MATLAB directory:
-
-1. **Testing accuracies for the 8 models** (Homogeneous model with all 3 network parameters fixed, to the Random model; with all params are varying), see Fig2 in the paper, these .mat data will be named: "*test_p_ra***.mat", 
+Running **VarDegradesPerf.m** will run its required functions and generate, in your current MATLAB directory, **Testing accuracies for the 8 models** (Homogeneous model with all 3 network parameters fixed, to the Random model; with all params are varying), see Fig2 in the paper, these .mat data will be named: "*test_p_ra***.mat", 
    .mat file name | corresponding model
    ------------ | -------------
    'test_p_ra' | the Random model
@@ -21,14 +19,8 @@ Running **VarDegradesPerf.m** will run its required functions and generate the f
    4. learning rate for updating the KC-MBON output weights
    5. determinancy in the decision making (c) 
 
-   The bars in **Fig 2B** are at the peak performance conditions, (N = 100, noise in the input = 0.1, peak learning rates for each model, and c = 10).      The performance trends in **Fig2 C1-C4** were plotted as a function of each of these 4 variables while holding the other 3 constant. 
-                                          
-1.  **Dimensionality** (Fig 3E) and **lifetime sparsity** (Fig 4) for the Homogenous and Random models are in *dim_HF, dim_S*,*std_H_LTSpar* and *std_S_LTSpar*, respectively.
-1. **DBI between odor pairs and DBI between 'good' and 'bad' odor classes** for the Homogenous and Random models. 
-1. **Angular distance between odor pairs and Angular Distance between 'good' and 'bad' odor classes** for the Homogenous and Random models.
+   The bars in **Fig 2B** are at the peak performance conditions, (N = 100, noise in the input = 1, peak learning rates for each model, and c = 10).      The performance trends in **Fig2 C1-C4** were plotted as a function of each of these 4 variables while holding the other 3 constant. 
 
-Finally, to replicate the results in **Fig S1** which uses the original Hallem-Carlson data and not fictitious odors derived from it, in the **VarDegradesPerf.m** code one needs to:
+**Fig 2E** is produced by `Perf_AtNonSparseCodingRegime_Random_HomogModels.m` and `Perf_AtSparseCodingRegime_APLNotZero_Random_HomogModels.m`, which also produced the metrics in **Fig 3** and **Fig S2** (angular distance, dimensionality, lifetime sparseness, valence specificity)
 
-1. change line 20 &21 to: **modss=1; mulOd=110;**
-2. By commenting line **60** and uncommenting **63**. 
-
+Finally, to replicate the results in **Fig S1** which uses the original Hallem-Carlson data and not fictitious odors derived from it, use `varDegradesPerf_S1_HallemOslenInp.m`
