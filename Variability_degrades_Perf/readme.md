@@ -1,4 +1,4 @@
-## These scripts can be used to reproduce the results of Figure 2, 3, 4 and S1. 
+## These scripts can be used to reproduce the results of Figure 2,3,S2 and S1. 
 
 Running **VarDegradesPerf.m** will run its required functions and generate the following in your current MATLAB directory:
 
@@ -21,7 +21,7 @@ Running **VarDegradesPerf.m** will run its required functions and generate the f
    4. learning rate for updating the KC-MBON output weights
    5. determinancy in the decision making (c) 
 
-   The bars in **Fig 2B** are at the peak performance conditions, (N = 100, noise in the input = 0.1, peak learning rates for each model, and c = 10).      The performance trends in **Fig2 C1-C4** were plotted as a function of each of these 4 variables while holding the other 3 constant. 
+   The bars in **Fig 2B** are at the peak performance conditions, (N = 100, noise in the input = 1, peak learning rates for each model, and c = 10).      The performance trends in **Fig2 C1-C4** were plotted as a function of each of these 4 variables while holding the other 3 constant. 
                                           
 1.  **Dimensionality** (Fig 3E) and **lifetime sparsity** (Fig 4) for the Homogenous and Random models are in *dim_HF, dim_S*,*std_H_LTSpar* and *std_S_LTSpar*, respectively.
 1. **DBI between odor pairs and DBI between 'good' and 'bad' odor classes** for the Homogenous and Random models. 
