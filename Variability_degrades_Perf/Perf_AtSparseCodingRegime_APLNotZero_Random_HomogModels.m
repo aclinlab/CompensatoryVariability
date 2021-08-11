@@ -269,9 +269,6 @@ for randomTrials=1:50
         YHomog_Fthetatr=YHomog_Fthetatemp(:,:,1:numtrainingSamples);
         Ytr=Ytemp(:,:,1:numtrainingSamples);
         
-        HF_DBi_odoursPairs(:,:,randomTrials,CLCond)= dbiCalc(YHomog_Fthetatemp);
-        S_DBi_odoursPairs (:,:,randomTrials,CLCond)= dbiCalc(Ytemp);
-        
         for l_r=1:lrs
             
             WopAllOdours=1*rand(n,2);
@@ -340,28 +337,21 @@ for randomTrials=1:50
         S1Resp= Ytemp(:,classAction1,:);
         S1RespAcTrials=reshape(S1Resp,n,(odors/2)*numTrials);
         S1RespAcTrialsCentroid=mean(S1RespAcTrials,2);
-        S1RespVar=sqrt(mean(vecnorm((S1RespAcTrials-S1RespAcTrialsCentroid ) )));
         
         S2Resp= Ytemp(:,class2,:);
         S2RespAcTrials=reshape(S2Resp,n,(odors/2)*numTrials);
         S2RespAcTrialsCentroid=mean(S2RespAcTrials,2);
-        S2RespVar=sqrt(mean(vecnorm((S2RespAcTrials-S2RespAcTrialsCentroid) )));
         
         S1RespHo_Ftheta= YHomog_Fthetatemp(:,classAction1,:);
         S1RespAcTrialsHo_Ftheta=reshape(S1RespHo_Ftheta,n,(odors/2)*numTrials);
         S1RespAcTrialsHoCentroid_Ftheta=mean(S1RespAcTrialsHo_Ftheta,2);
-        S1RespVarHo_Ftheta= sqrt(mean(vecnorm(S1RespAcTrialsHo_Ftheta-S1RespAcTrialsHoCentroid_Ftheta)));
         
         S2RespHo_Ftheta= YHomog_Fthetatemp(:,class2,:);
         S2RespAcTrialsHo_Ftheta=reshape(S2RespHo_Ftheta,n,(odors/2)*numTrials);
         S2RespAcTrialsHoCentroid_Ftheta=mean(S2RespAcTrialsHo_Ftheta,2);
-        S2RespVarHo_Ftheta= sqrt(mean(vecnorm((  S2RespAcTrialsHo_Ftheta- S2RespAcTrialsHoCentroid_Ftheta) )));
         
         S_Cw_AngDist(randomTrials,CLCond)= (acos(( (S1RespAcTrialsCentroid'/norm(S1RespAcTrialsCentroid'))*(S2RespAcTrialsCentroid/norm(S2RespAcTrialsCentroid))) )/ (0.5*pi) ) ;
         HF_Cw_AngDist(randomTrials,CLCond)= (acos(( (S1RespAcTrialsHoCentroid_Ftheta'/norm(S1RespAcTrialsHoCentroid_Ftheta'))*(S2RespAcTrialsHoCentroid_Ftheta/norm(S2RespAcTrialsHoCentroid_Ftheta))) )/ (0.5*pi) ) ;
-        
-        S_Cw_DBI(randomTrials,CLCond)=  (S1RespVar+S2RespVar)/( norm( S1RespAcTrialsCentroid-S2RespAcTrialsCentroid));
-        HF_Cw_DBI(randomTrials,CLCond)= (S1RespVarHo_Ftheta+S2RespVarHo_Ftheta)/(norm(S1RespAcTrialsHoCentroid_Ftheta- S2RespAcTrialsHoCentroid_Ftheta));
         
         V_spec_R(:,randomTrials,CLCond)= abs( sum(Ytemp1(:,classAction1,:),[2 3])- sum(Ytemp1(:,class2,:), [2 3]) )./ sum(Ytemp1,[2 3]);
         V_spec_Homog(:,randomTrials,CLCond)= abs( sum(YHomog_Fthetatemp1(:,classAction1,:),[2 3])- sum(YHomog_Fthetatemp1(:,class2,:), [2 3]) )./ sum(YHomog_Fthetatemp1,[2 3]);
@@ -376,5 +366,5 @@ end
 % save the angular distance, lifetime sparsity, and Valence specificity
 % measures for both fly models, under the different coding levels: CL=0.1 & 0.9 (without APL)
 save(strcat('CL_APL_IsNotzero_performance_separabilityMetrics_',num2str(odors),'.mat'),'test_p_ra','test_p_raH_FixedTheta','S_Cw_AngDist','HF_Cw_AngDist','S_PW_AngDist','H_PW_AngDist','lifeTime_Spar','S_LTSpar','H_lifeTime_Spar','H_LTSpar'...
-    ,'HF_DBi_odoursPairs','S_DBi_odoursPairs','HF_Cw_DBI','S_Cw_DBI','V_spec_R','V_spec_Homog');
+    ,'V_spec_R','V_spec_Homog');
 
