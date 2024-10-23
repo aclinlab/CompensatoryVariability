@@ -108,6 +108,9 @@ plot(xrange, p(1)*xrange + p(2))
 PNs_1 = (PNs_1_ - p(2))/p(1);
 PNs_2=  (PNs_2_*p(1))+p(2);
 
+% Why do we take PN_2_ instead of PN_2, this looks like a typo
+%or maybe on purpose, because both PN_1 and PN_2 are rescaled, which seemed
+%odd in the first place?
 PNs=[PNs_1 PNs_2_]; % now this is the 24 by 200 matrix (24 ORNs 200 odors)
 
 %% loops over different number of input odors, N=50,100,150,200.
