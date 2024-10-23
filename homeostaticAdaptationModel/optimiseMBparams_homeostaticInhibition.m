@@ -1,6 +1,6 @@
-function optimisedMBparams_including_inhibitoryPlasticity(MBmodel, PNactivity)
+function MBmodel = optimiseMBparams_homeostaticInhibition(MBmodel, PNactivity)
 % optimising the "green model"
-sigmoid_factor = -1.;
+sigmoid_factor = -1.11;
 Sigmoid_derivative = @(x) exp(-x./sigmoid_factor)./((1.+exp(-x./sigmoid_factor)).^2) ;
 Sigmoid = @(x) 1./(1.+exp(-x./sigmoid_factor)) ;
  
@@ -27,11 +27,11 @@ nResponses = size(PNactivity,2)*size(PNactivity,3);
             % Activations =zeros(n,odors*numtrainingSamples);
             % ActivationsDummy= zeros(n, odors*numtrainingSamples);
     APLgains_array = zeros(2000,1);
-    A0 = 0.51 .*ones(n,1); %setpoint for KC lifetime sparseness (each KC 
+    A0 = 0.51; %setpoint for KC lifetime sparseness (each KC 
     % should show activity half the time)
-    epsilon= A0(1)*0.06;       
-    eta_o1= 0.02;
-    eta_o2= 0.0000001;
+    epsilon = A0 * 0.06;       
+    eta_APL_1 = 0.02;
+    eta_APL_2 = 0.0000001;
 
         % t=1;
     conditions = false;
@@ -105,9 +105,9 @@ nResponses = size(PNactivity,2)*size(PNactivity,3);
         % all KCs, the to avoid stucking in a local minima, we add a small noise
         % on top of the calculated gradient.
                 
-        Grad_alpha1 = eta_o1 .* (CL_incInh-0.10) .* mean(dsig_dalpha,2)  + 0.0001*randn(n,1);
+        Grad_alpha1 = eta_APL_1 .* (CL_incInh-0.10) .* mean(dsig_dalpha,2)  + 0.0001*randn(n,1);
         
-        Grad_alpha2 = eta_o2 * errorInActivity .* d_yj_alphaj + 0.0001*randn(n,1);
+        Grad_alpha2 = eta_APL_2 * errorInActivity .* d_yj_alphaj + 0.0001*randn(n,1);
                 
         Grad_alpha= Grad_alpha1+Grad_alpha2 ;
                 

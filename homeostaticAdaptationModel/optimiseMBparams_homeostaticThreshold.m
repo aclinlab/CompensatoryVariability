@@ -1,30 +1,29 @@
-function MBmodel = optimiseMBparams_including_lifetimeSparseness(MBmodel, PNactivity)
+function MBmodel = optimiseMBparams_homeostaticThreshold(MBmodel, PNactivity)
 %% this is the "magenta model"
 
 % sigmoid_factor = -0.9;
 % Sigmoid_derivative = @(x) exp(-sigmoid_factor.*x)./((1.+exp(-sigmoid_factor.*x)).^2) ;
 % Sigmoid = @(x) 1./(1.+exp(-sigmoid_factor.*x)) ;
-sigmoid_factor = -1.11;
+sigmoid_factor = 1.;
 Sigmoid_derivative = @(x) exp(-x./sigmoid_factor)./((1.+exp(-x./sigmoid_factor)).^2) ;
 Sigmoid = @(x) 1./(1.+exp(-x./sigmoid_factor)) ;
 
-%n=2000 KCs, numtrainingSamples=15
 n = MBmodel.nKCs;
+m = MBmodel.nPNs;
 theta = MBmodel.theta;
 weights = MBmodel.PNtoKC;
 nResponses = size(PNactivity,2)*size(PNactivity,3);
 
-% A = zeros(n,nResponses); %A is excitation to KC_i from PNs to odor k
-% Y = zeros(n,nResponses); %resulting activity of KC without APL feedback
 eta_Ctheta = 1; %scales adjustment steps for C_theta
 C_theta=1; %scaling factor to achieve the correct average coding level (10 resp. 20%)
-
-A0 = (0.51) .* ones(n,1);
-epsilon = A0(1) * 0.06;
 
 % eta_APLgain = 0.0000001; %scales adjustment steps for ALPgain
 eta_APLgain = 0.0000001; %scales adjustment steps for ALPgain
 APLgain = 0.000001;
+
+lifetimeSparseness = 0.51;
+sparseness_margin = lifetimeSparseness * 0.06;
+eta_theta = 0.05;
 
 constraints=0; %%
 nLoops = 0;
@@ -44,22 +43,22 @@ while(~constraints)
     end
     %calculate the KC responses to PN input for training trials
     A = weights' * PNactivity;
-    Y = A - C_theta .* theta;
-    CL_disInh = mean(Y(:)>0); %inhibition absent, should get to 20%
+    Y_disInh = A - C_theta .* theta;
+    CL_disInh = mean(Y_disInh(:)>0); %inhibition absent, should get to 20%
     
     %% we want to change the theta so to achieve CL_incInh=2xCL_disInh
 	% c.f. eq.14 and previous
 	% CL stands for Coding Level, and we want 10% resp. 20% of KCs active with/without inhibition
-    % dsig_dy=(exp(0.9.*Y)./((1+exp(0.9.*Y)).^2)); %shouldn't this be 0.8 instead?
-    dsig_dy = Sigmoid_derivative(Y);
+    % dsig_dy=(exp(0.9.*Y_disInh)./((1+exp(0.9.*Y_disInh)).^2)); %shouldn't this be 0.8 instead?
+    dsig_dy = Sigmoid_derivative(Y_disInh);
     if any(isnan(dsig_dy(:)))
         fprintf('found NaNs in iteration %d',nLoops)
     end
     dsig_dy(isnan(dsig_dy))=0;
-    depsi_dtheta= -(Y>0).* dsig_dy.* (repmat(theta,1,nResponses));
+    depsi_dtheta= -(Y_disInh>0).* dsig_dy.* (repmat(theta,1,nResponses));
     % Grad= ((CL_disInh)-0.20) ./ (n*nResponses) .* (sum(depsi_dtheta(:)));
-    Grad= ((CL_disInh)-0.20) .* (mean(depsi_dtheta(:)));
-    C_theta=C_theta - eta_Ctheta.*(Grad);
+    Grad = ((CL_disInh)-0.20) .* (mean(depsi_dtheta(:)));
+    C_theta = C_theta - eta_Ctheta.*(Grad);
     
     if (C_theta<0)
         error('the scale factor in the random model is -ve')
@@ -77,14 +76,15 @@ while(~constraints)
     dAct_dalpha= sum(A,1);
     % dsig_dalpha = -(Y_incInh>0).*(repmat(dAct_dalpha,n,1)).*  dsig_dy;
     dsig_dalpha = -(Sigmoid(Y_incInh)) .* (repmat(dAct_dalpha,n,1)) .*  dsig_dy;
-    Grad_alpha = ((CL_incInh)-0.10)/(n*nResponses)*(sum(dsig_dalpha(:)));
+    % Grad_alpha = ((CL_incInh)-0.10)/(n*nResponses)*(sum(dsig_dalpha(:)));
+	Grad_alpha = ((CL_incInh)-0.10)*mean(dsig_dalpha(:));
     APLgain = APLgain - eta_APLgain*(Grad_alpha);
     
     %new part
     Y_incInh = A - APLgain.*repmat(sum(A,1),n,1) - C_theta.*repmat(theta,1,nResponses);
     avgAKcs = mean(Y_incInh,2); %lifetime average activity (mean actoss trials)
-    errorInActivity = (avgAKcs-A0); %what is A0 set to?
-    theta = theta - 0.01 * (-1.*C_theta .* errorInActivity);
+    errorInActivity = (avgAKcs-lifetimeSparseness); %what is lifetimeSparseness set to?
+    theta(mask) = theta(mask) - eta_theta * C_theta .* repmat(errorInActivity,m,1);
     theta(theta<0) = 0;
 
     % sanity check
@@ -111,7 +111,7 @@ while(~constraints)
 
     avgAKcs = mean(Y_incInh,2); %additional condition
     %check conditions on CL with/without inhibition and lifetime sparseness
-    constraints = all( abs(avgAKcs-A0)<epsilon ) & ( abs( (CL_disInh/CL_incInh) - 2.0)<0.2 ) &...
+    constraints = all( abs(avgAKcs-lifetimeSparseness)<sparseness_margin ) & ( abs( (CL_disInh/CL_incInh) - 2.0)<0.2 ) &...
         (abs( CL_incInh-0.10)<0.01);
 
     %disp([InhAbs_CL CL_ C_theta  APLgain])

@@ -42,7 +42,6 @@ while(~conditions)
     %% we want to change the theta so to achieve InhAbs_CL=2xCL
 	% c.f. eq.14 and previous
 	% CL stands for Coding Level, and we want 10% resp. 20% of KCs active with/without inhibition
-    % dsig_dy=(exp(0.9.*Y)./((1+exp(0.9.*Y)).^2)); %shouldn't this be 0.8 instead?
     dsig_dy = Sigmoid_derivative(Y_disInh);
     if any(isnan(dsig_dy(:)))
         fprintf('found NaNs in iteration %d',nLoops)
@@ -50,28 +49,18 @@ while(~conditions)
     dsig_dy(isnan(dsig_dy))=0;
     depsi_dtheta= -(Y_disInh>0).* dsig_dy.* (repmat(theta,1,nResponses));
     % Grad= ((CL_disInh)-0.20) ./ (n*nResponses) .* (sum(depsi_dtheta(:)));
-    Grad= ((CL_disInh)-0.20) .* (mean(depsi_dtheta(:)));
-    C_theta=C_theta - eta_Ctheta.*(Grad);
-    
+    Grad = ((CL_disInh)-0.20) .* (mean(depsi_dtheta(:)));
+    C_theta = C_theta - eta_Ctheta.*(Grad);
     if (C_theta<0)
         error('the scale factor in the random model is -ve')
     end
-    
+     
     %% allow alpha to be a free parameter: achieving the 2nd spar. constraint CL=10%
     % similar calculation, but including estimate of APLgain, and with adjusted C_theta
-    % for trial = 1:(nResponses)
-    %     ActivationsEqualizeddummy(:,trial) = thisW'*PNactivity(:,trial);
-    %     YEqualizeddummy(:,trial)= ( ActivationsEqualizeddummy(:,trial)- ...
-	% 	    APLgain*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-...
-	% 		(C_theta.*theta) );
-    %     codingLevelEqualizedDummy(trial)=  (sum(YEqualizeddummy(:,trial)>0,1)/n);
-    % end
-    % CL_incInh = mean(codingLevelEqualizedDummy);
     Y_incInh = A - APLgain .* sum(A,1) - C_theta .* theta;
     CL_incInh = mean(Y_incInh(:)>0);
     
 	%c.f. eq.18 and previous, adjusting APLgain alpha
-    % dsig_dy=(exp(0.9.*YEqualizeddummy)./((1+exp(0.9.*YEqualizeddummy)).^2));
     dsig_dy = Sigmoid_derivative(Y_incInh);
     dsig_dy(isnan(dsig_dy))=0;
     dAct_dalpha= sum(A,1);
@@ -89,45 +78,23 @@ while(~conditions)
         APLgain_prev = APLgain;
         C_prev = C_theta;
     end
+	
     %% checking if the constraints are met:
 	% repeat calculations done during optimisation but with updated values C_theta, APLgain
     %  first for zero-inhibition condition
-	% for trial = 1:nResponses
-    %     Activations_S(:,trial) = thisW'*PNactivity(:,trial);
-    %     Y_S(:,trial)=(( Activations_S(:,trial)-(C_theta.*theta) )>0 )...
-	% 		.*( Activations_S(:,trial)-(C_theta.*theta) );
-    %     codingLevelDummy(trial)=  (sum(Y_S(:,trial)>0,1)/n);
-    % end
-    %alternative formulation
-    % Activations_S = thisW' * PNactivity;
-    Y_S = A - C_theta .* theta ;
-    CL_disInh=mean(Y_S(:)>0);
-    
+    Y_disInh = A - C_theta .* theta;
+    CL_disInh = mean(Y_disInh(:)>0);
 	%  then for KC activity with APL inhibition
-    % for trial = 1:nResponses
-    %     Activation(:,trial) = thisW'*PNactivity(:,trial);
-    %     Y(:,trial)=(( Activation(:,trial)-APLgain*repmat(sum(Activation(:,trial),1),n,1)-(C_theta.*theta) )>0 ).*( Activation(:,trial)-APLgain*repmat(sum(Activation(:,trial),1),n,1)-(C_theta.*theta) );
-    %     codingLevelDummy(trial)=  (sum(Y(:,trial)>0,1)/n);
-    % end
-    % CL_=mean(codingLevelDummy);
-    %alternative formulation
     Y_incInh = A - APLgain .* sum(A,1) - C_theta .* theta;
-    CL_incInh = mean(Y_incInh(:)>0);
-    
+    CL_incInh = mean(Y_incInh(:)>0); 
     conditions= ( abs( (CL_disInh/CL_incInh) - 2.0)<0.2 ) &( abs(CL_incInh-0.10)<0.01 );
-    %disp([InhAbs_CL CL_ C_theta  APLgain])
     
 end
 disp(sprintf('Optimisation took %d loops',nLoops))
-
+% end optimisation, store results
 MBmodel.C_theta = C_theta;
 MBmodel.alpha = APLgain;
 MBmodel.CL_disInh = CL_disInh;
 MBmodel.CL_incInh = CL_incInh;
-
-% end optimisation, store results
-% CLevelP(end+1)=CL_; %appends to vector, empty until now (renewed for each noise level)
-% theta=(C_theta.*theta) ;
-% INHAbs_CLP(end+1)=InhAbs_CL;
 
 end
