@@ -44,7 +44,7 @@ for Pn=1:24
 end
 
 % load the old odors of the submitted data
-load(strcat(pwd,'/Data_submitted',['_fly_wNoise',num2str(1),num2str(1)]),'PNtrials');
+load(strcat('..','/Data_submitted',['_fly_wNoise',num2str(1),num2str(1)]),'PNtrials');
 %% recover the rescaling factors
 PNs_1_=PNtrials(:,:,1);
 % get the maximum bin center for each PN derived from the original
@@ -229,35 +229,35 @@ for mods=1:modss
             C_theta=1;
             C_thetaS=1;
             C_thetaH=1;
-            
+
             spmd
-                
+
                 ActivationsDummy=zeros(n,odors*numtrainingSamples);
                 ActivationsEqualizeddummy=zeros(n,odors*numtrainingSamples);
                 A=zeros(n,odors*numtrainingSamples);
                 Y=zeros(n,odors*numtrainingSamples);
                 YEqualizeddummy=zeros(n,odors*numtrainingSamples);
                 codingLevelEqualizedDummy=[];
-                
+
                 if labindex==1
                     % tuning the activity independent compensatory model
                     % P(W|n, theta)
-                    
+
                     InhAbs_CLVec(1)=0;
                     InhAbsTarget=0.20;
-                    
+
                     while(~constraints)
-                        
+
                         % with inhibition gain absent, scaling thetas distribution to acheive
                         % the sparsity constraint= 20% when APL feedback is inhibited.
-                        
+
                         eta=2;
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             A(:,trial) = thisW_equalizedModel'*PNtrials(:,trial);
                             Y(:,trial)=(( A(:,trial)-(C_theta.*theta))>0 ).*( A(:,trial)-(C_theta.*theta));
                             codingLevelEqualizedDummy(trial)=  (sum(Y(:,trial)>0,1)/n);
-                            
+
                         end
                         InhAbs_mComp=mean(codingLevelEqualizedDummy);
                         depsi1_dy=(exp(0.9.*Y)./((1+exp(0.9.*Y)).^2));
@@ -265,98 +265,98 @@ for mods=1:modss
                         depsi1_dtheta= -(Y>0).* depsi1_dy.* (repmat(theta,1,odors*numtrainingSamples));
                         Grad= ((InhAbs_mComp)-InhAbsTarget)*(1/(n*odors*numtrainingSamples)).*(sum(depsi1_dtheta(:)));
                         C_theta=C_theta -(eta.*Grad);
-                        
+
                         if (C_theta<0)
                             error('the scale factor in cyan model is -ve')
                         end
-                        
+
                         %% resample the weights
                         thisW_equalizedModel=zeros(m,n);
-                        
+
                         for k=1:n
                             for j=1:length(PnToKc{k})
-                                
+
                                 whichPN = PnToKc{k}(j);
                                 % pick random weight from a log normal distribution that
                                 % roughtly fits the Turner distribution
                                 %% sample the weights from the fitted weights in the other script (modelling KC_PnWeights.m)
-                                
+
                                 ThetaInd= round(((theta(k)-0.01)/0.1)+1);
                                 %% capping theta at 0.1..
                                 ThetaInd(ThetaInd==0)=1;
-                                
+
                                 this_KCWeights= PW_given_theta_and_n(length(PnToKc{k})-1,ThetaInd,:);
-                                
-                                
+
+
                                 thisWeight_equalizedModel= randsample(W,1,'true', this_KCWeights);
-                                
+
                                 thisW_equalizedModel(whichPN,k)= thisW_equalizedModel(whichPN,k)+thisWeight_equalizedModel;
-                                
+
                             end
                         end
-                        
+
                         % replicating the sparsity level of the KCs in real MB network
                         % CL=10%
                         eta_2=0.000001;
-                        
+
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             ActivationsEqualizeddummy(:,trial) = thisW_equalizedModel'*PNtrials(:,trial);
                             YEqualizeddummy(:,trial)=(( ActivationsEqualizeddummy(:,trial)-(InhibitionGain)*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-(C_theta.*theta))>0 ).*( ActivationsEqualizeddummy(:,trial)-InhibitionGain*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-(C_theta.*theta));
                             codingLevelEqualizedDummy(trial)=  (sum(YEqualizeddummy(:,trial)>0,1)/n);
-                            
+
                         end
                         mComp=mean(codingLevelEqualizedDummy);
-                        
+
                         dsig_dy=(exp(0.9.*YEqualizeddummy)./((1+exp(0.9.*YEqualizeddummy)).^2));
                         dsig_dy(isnan(dsig_dy))=0;
-                        
+
                         dAct_dalpha= sum(ActivationsEqualizeddummy,1);
-                        
+
                         dsig_dalpha= -(YEqualizeddummy>0).*(repmat(dAct_dalpha,n,1)).*  dsig_dy;
-                        
-                        
+
+
                         Grad_alpha= ((mComp)-0.10)*(1/(n*odors*numtrainingSamples))*(sum(dsig_dalpha(:)));
                         InhibitionGain= InhibitionGain- eta_2*(Grad_alpha);
-                        
+
                         if (InhibitionGain<0)
-                            
+
                             wh=1;
                         end
-                        
-                        
+
+
                         %% check if the constraints are satisfied
-                        
+
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             ActivationsDummy(:,trial) = thisW_equalizedModel'*PNtrials(:,trial);
                             Y_d(:,trial)=(( ActivationsDummy(:,trial)-(C_theta.*theta))>0 ).*( ActivationsDummy(:,trial)-(C_theta.*theta));
                             codingLevelDummy(trial)=  (sum(Y_d(:,trial)>0,1)/n);
                         end
-                        
+
                         InhAbs_CL=mean(codingLevelDummy);
-                        
+
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             Activations(:,trial) = thisW_equalizedModel'*PNtrials(:,trial);
                             Y(:,trial)=(( Activations(:,trial)-(InhibitionGain)*repmat(sum(Activations(:,trial),1),n,1)-(C_theta.*theta))>0 ).*( Activations(:,trial)-InhibitionGain*repmat(sum(Activations(:,trial),1),n,1)-(C_theta.*theta));
                             codingLevelDummy(trial)=  (sum(Y(:,trial)>0,1)/n);
-                            
+
                         end
                         CL_=mean(codingLevelDummy);
                         constraints= ( abs( (InhAbs_CL/CL_) - 2.0)<0.2) &( abs(CL_-0.10)<0.01 );
                         InhAbs_CLVec(end+1)=InhAbs_CL;
-                        
+
                         %% debugging
                         theta_Vs_deltaActivations(end+1,:)=[ mean(theta), mean(ActivationsDummy(find(ActivationsDummy)))];
-                        
-                        
+
+
                     end
                     theta=(C_theta.*theta);
                     CLevelP(1)=CL_;
                     INHAbs_CLP(1)=InhAbs_CL;
-                    
-                    
+
+
                 elseif labindex==2
                     % replicating the KCs sparsity levels in the Random model
                     % no tuning of any activity dependent plasticity.
@@ -368,17 +368,17 @@ for mods=1:modss
                     A=zeros(n,odors*numtrainingSamples);
                     Y=zeros(n,odors*numtrainingSamples);
                     eta=1;
-                    
+
                     while(~constraints)
-                        
+
                         % with inhibition gain absent, scaling thetas distribution to acheive
                         % the sparsity constraint= 20% when APL feedback is inhibited.
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             A(:,trial) = thisW'*PNtrials(:,trial);
                             Y(:,trial)=(( A(:,trial)-(C_thetaS.*thetaS))>0 ).*( A(:,trial)-(C_thetaS.*thetaS));
                             codingLevelDummy(trial)=  (sum(Y(:,trial)>0,1)/n);
-                            
+
                         end
                         InhAbs_mSimp=mean(codingLevelDummy);
                         depsi1_dy=(exp(0.9.*Y)./((1+exp(0.9.*Y)).^2));
@@ -386,21 +386,21 @@ for mods=1:modss
                         depsi1_dtheta= -(Y>0).* depsi1_dy.* (repmat(thetaS,1,odors*numtrainingSamples));
                         Grad= ((InhAbs_mSimp)-0.20)*(1/(n*odors*numtrainingSamples)).*(sum(depsi1_dtheta(:)));
                         C_thetaS=C_thetaS - eta.*(Grad);
-                        
+
                         if (C_thetaS<0)
                             error('the scale factor in the random model is -ve')
                         end
-                        
+
                         % replicating the sparsity level of the KCs in real MB network
                         % CL=10%
                         eta_2=0.0000001;
-                        
+
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             ActivationsEqualizeddummy(:,trial) = thisW'*PNtrials(:,trial);
                             YEqualizeddummy(:,trial)=(( ActivationsEqualizeddummy(:,trial)-(APLgainP(1))*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-(C_thetaS.*thetaS))>0 ).*( ActivationsEqualizeddummy(:,trial)-APLgainP(1)*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-(C_thetaS.*thetaS));
                             codingLevelEqualizedDummy(trial)=  (sum(YEqualizeddummy(:,trial)>0,1)/n);
-                            
+
                         end
                         CLRand=mean(codingLevelEqualizedDummy);
                         dsig_dy=(exp(0.9.*YEqualizeddummy)./((1+exp(0.9.*YEqualizeddummy)).^2));
@@ -409,59 +409,59 @@ for mods=1:modss
                         dsig_dalpha= -(YEqualizeddummy>0).*(repmat(dAct_dalpha,n,1)).*  dsig_dy;
                         Grad_alpha= ((CLRand)-0.10)*(1/(n*odors*numtrainingSamples))*(sum(dsig_dalpha(:)));
                         APLgainP(1)= APLgainP(1)- eta_2*(Grad_alpha);
-                        
-                        
+
+
                         % check if the constraints are satisfied
-                        
+
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             Activations_S(:,trial) = thisW'*PNtrials(:,trial);
                             Y_S(:,trial)=(( Activations_S(:,trial)-(C_thetaS.*thetaS))>0 ).*( Activations_S(:,trial)-(C_thetaS.*thetaS));
                             codingLevelDummy(trial)=  (sum(Y_S(:,trial)>0,1)/n);
                         end
-                        
+
                         InhAbs_CL=mean(codingLevelDummy);
-                        
+
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             Activation(:,trial) = thisW'*PNtrials(:,trial);
                             Y(:,trial)=(( Activation(:,trial)-(APLgainP(1))*repmat(sum(Activation(:,trial),1),n,1)-(C_thetaS.*thetaS))>0 ).*( Activation(:,trial)-APLgainP(1)*repmat(sum(Activation(:,trial),1),n,1)-(C_thetaS.*thetaS));
                             codingLevelDummy(trial)=  (sum(Y(:,trial)>0,1)/n);
-                            
+
                         end
                         CL_=mean(codingLevelDummy);
-                        
-                        
+
+
                         constraints= ( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( abs(CL_-0.10)<0.01 );
-                        
+
                     end
-                    
+
                     CLevelP(1)=CL_;
                     thetaS=(C_thetaS.*thetaS);
                     INHAbs_CLP(1)=InhAbs_CL;
-                    
+
                 elseif labindex==3
-                    
+
                     % replicating the KCs sparsity levels in the homogenous model
                     % no tuning of any activity dependent plasticity.
-                    
+
                     constraints=0;
                     thetaH_Ftheta=5+rand(1);
                     A=zeros(n,odors*numtrainingSamples);
                     Y=zeros(n,odors*numtrainingSamples);
                     HomoFtheta_Inh=0;
-                    
+
                     while(~constraints)
-                        
+
                         % with inhibition gain absent, scaling thetas distribution to acheive
                         % the sparsity constraint= 20% when APL feedback is inhibited.
                         eta=1;
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             A(:,trial) = thisW_HomogModel'*PNtrials(:,trial);
                             Y(:,trial)=(( A(:,trial)-(C_thetaH*thetaH_Ftheta))>0 ).*( A(:,trial)-(C_thetaH*thetaH_Ftheta));
                             codingLevelDummy(trial)=  (sum(Y(:,trial)>0,1)/n);
-                            
+
                         end
                         InhAbs_mHomog=mean(codingLevelDummy);
                         depsi1_dy=(exp(0.9.*Y)./((1+exp(0.9.*Y)).^2));
@@ -469,21 +469,21 @@ for mods=1:modss
                         depsi1_dtheta= -(Y>0).* depsi1_dy.*(repmat(thetaH_Ftheta,n,odors*numtrainingSamples));
                         Grad= ((InhAbs_mHomog)-0.20)*(1/(n*odors*numtrainingSamples)).*(sum(depsi1_dtheta(:) ));
                         C_thetaH=C_thetaH- (eta.*Grad);
-                        
+
                         if (C_thetaH<0)
                             error('the scale factor in black model is -ve')
                         end
-                        
+
                         % replicating the sparsity level of the KCs in real MB network
                         % CL=10%
                         eta_2=0.0000001;
-                        
+
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             ActivationsEqualizeddummy(:,trial) = thisW_HomogModel'*PNtrials(:,trial);
                             YEqualizeddummy(:,trial)=(( ActivationsEqualizeddummy(:,trial)-(APLgainP(2))*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-(C_thetaH*thetaH_Ftheta))>0 ).*( ActivationsEqualizeddummy(:,trial)-APLgainP(2)*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-(C_thetaH*thetaH_Ftheta));
                             codingLevelEqualizedDummy(trial)=  (sum(YEqualizeddummy(:,trial)>0,1)/n);
-                            
+
                         end
                         CLAllFixed=mean(codingLevelEqualizedDummy);
                         dsig_dy=(exp(0.9.*YEqualizeddummy)./((1+exp(0.9.*YEqualizeddummy)).^2));
@@ -492,55 +492,55 @@ for mods=1:modss
                         dsig_dalpha= -(YEqualizeddummy>0).*(repmat(dAct_dalpha,n,1)).*  dsig_dy;
                         Grad_alpha= ((CLAllFixed)-0.10)*(1/(n*odors*numtrainingSamples))*(sum(dsig_dalpha(:)));
                         APLgainP(2)= APLgainP(2)- eta_2*(Grad_alpha);
-                        
+
                         % check if the constraints are satisfied
-                        
+
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             Activations_H(:,trial) = thisW_HomogModel'*PNtrials(:,trial);
                             Y_H(:,trial)=(( Activations_H(:,trial)-(C_thetaH*thetaH_Ftheta))>0 ).*( Activations_H(:,trial)-(C_thetaH*thetaH_Ftheta));
                             codingLevelDummy(trial)=  (sum(Y_H(:,trial)>0,1)/n);
                         end
-                        
+
                         InhAbs_CL=mean(codingLevelDummy);
-                        
+
                         for trial = 1:(odors*numtrainingSamples)
-                            
+
                             Activation(:,trial) = thisW_HomogModel'*PNtrials(:,trial);
                             Y(:,trial)=(( Activation(:,trial)-(APLgainP(2))*repmat(sum(Activation(:,trial),1),n,1)-(C_thetaH*thetaH_Ftheta))>0 ).*( Activation(:,trial)-APLgainP(2)*repmat(sum(Activation(:,trial),1),n,1)-(C_thetaH*thetaH_Ftheta));
                             codingLevelDummy(trial)=  (sum(Y(:,trial)>0,1)/n);
-                            
+
                         end
                         CL_=mean(codingLevelDummy);
-                        
+
                         constraints= ( abs( (InhAbs_CL/CL_) - 2.0)<0.2) &( abs(CL_-0.10)<0.01 );
-                        
-                        
+
+
                     end
-                    
+
                     CLevelP(1)=CL_;
                     INHAbs_CLP(1)=InhAbs_CL;
                     thetaH_Ftheta=(C_thetaH*thetaH_Ftheta);
-                    
+
                 end
             end
             Clevels=[CLevelP{1},CLevelP{2},CLevelP{3}];
             INHAbs_CL=[INHAbs_CLP{1},INHAbs_CLP{2},INHAbs_CLP{3}];
-            
+
             % end of the parallel pool, aggregating the tuned variables of the KCs
             % from the 3 jobs/threads into a matrix
             for i=1:2
                 temp=APLgainP{i+1};
                 APLgains(i)= temp(i);
             end
-            
+
             InhibitionGain=InhibitionGain{1};
             theta=theta{1};
             thetaH_Ftheta=thetaH_Ftheta{3};
             thetaS=thetaS{2};
-            
+
             thisW_equalizedModel=thisW_equalizedModel{1};
-            
+
             toc
             
             
@@ -548,11 +548,11 @@ for mods=1:modss
             % our main model for tuning the PN-KC weights presented in Fig5 (the Blue
             % model)
             tic
-            thisW_ActivityBasedComp_noxjk=initial_thisW_ActivityBasedComp;
+            thisW_ActivityBasedComp_noxjk=initial_thisW_ActivityBasedComp; %this is 5+rand for each synapse, resp. approx "multiples"
             Activations =zeros(n,odors*numtrainingSamples);
             ActivationsDummy= zeros(n, odors*numtrainingSamples);
             Conn=zeros(m,n);
-            Conn(find(thisW_ActivityBasedComp_noxjk))=1;
+            Conn(find(thisW_ActivityBasedComp_noxjk))=1; %sum of this <= 6*2000 (because KCs sample PNs "with replacing")
             mask= zeros (m,n);
             mask(find(thisW_ActivityBasedComp_noxjk))=1;
             C_=1;
@@ -569,20 +569,20 @@ for mods=1:modss
             A=zeros(n,odors*numtrainingSamples);
             Y_d=zeros(n,odors*numtrainingSamples);
             codingLevelDummy=[];
-            
+
             t = 1;
             while(~conditions)
-                
+
                 % with inhibition gain absent, scaling thetas distribution to acheive
                 % the sparsity constraint= 20% when APL feedback is inhibited.
-                
+
                 for trial = 1:(odors*numtrainingSamples)
-                    
+
                     A(:,trial) = thisW_ActivityBasedComp_noxjk'*PNtrials(:,trial);
                     Y_d(:,trial)=(( A(:,trial)-(C_.*theta_comp2_noxjk) )>0 ).*( A(:,trial)-(C_.*theta_comp2_noxjk));
                     codingLevelDummy(trial)=  (sum(Y_d(:,trial)>0,1)/n);
                 end
-                
+
                 InhAbs_CL=mean(codingLevelDummy);
                 depsi1_dy=(exp(0.9.*Y_d)./((1+exp(0.9.*Y_d)).^2));
                 depsi1_dy(isnan(depsi1_dy))=0;
@@ -594,70 +594,70 @@ for mods=1:modss
                 if (C_<0)
                     error('the scale factor in the blue model is -ve!!')
                 end
-                
+
                 % replicating the sparsity level of the KCs in real MB network
                 % CL=10%
                 eta_2=0.00000005;
-                
+
                 for trial = 1:(odors*numtrainingSamples)
-                    
+
                     Activations(:,trial) = thisW_ActivityBasedComp_noxjk'*PNtrials(:,trial);
                     Y_(:,trial)=(( Activations(:,trial)-(APLgains_noxjk)*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_comp2_noxjk))>0 ).*( Activations(:,trial)-APLgains_noxjk*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_comp2_noxjk));
                     codingLevelDummy(trial)=  (sum(Y_(:,trial)>0,1)/n);
-                    
+
                 end
                 CL_=mean(codingLevelDummy);
                 dsig_dy=(exp(0.9.*Y_)./((1+exp(0.9.*Y_)).^2));
                 dsig_dy(isnan(dsig_dy))=0;
                 dAct_dalpha= sum(Activations,1);
-                
+
                 if ( any(isinf(dAct_dalpha)) )
-                    
+
                     stopp=1;
                 end
-                
+
                 dsig_dalpha= -(Y_>0).*(repmat(dAct_dalpha,n,1)).*  dsig_dy;
                 Grad_alpha= ((CL_)-0.10)*(1/(n*odors*numtrainingSamples))*(sum(dsig_dalpha(:)));
                 APLgains_noxjk= APLgains_noxjk- eta_2*(Grad_alpha);
-                
-                
+
+
                 %now, third optimization step finding the optimum weights
                 %to equalize the average activity levels among KCs, all
                 %synapses are scaled by the same factor, homogenously.
-                
-                
+
+
                 for trial = 1:(odors*numtrainingSamples)
-                    
+
                     Activations(:,trial) = thisW_ActivityBasedComp_noxjk'*PNtrials(:,trial );
                     Y_(:,trial)=(( Activations(:,trial)-(APLgains_noxjk)*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_comp2_noxjk))>0 ).*( Activations(:,trial)-APLgains_noxjk*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_comp2_noxjk));
-                    
+
                 end
                 avgAKcs=mean(Y_,2);
                 errorInActivity=(1).*repmat((avgAKcs-A0)',m,1);
                 thisW_ActivityBasedComp_noxjk= thisW_ActivityBasedComp_noxjk-(0.05).*((1.*(mask.*errorInActivity)));
-                
-                
+
+
                 thisW_ActivityBasedComp_noxjk(find(thisW_ActivityBasedComp_noxjk<0))=0;
-                
+
                 % check if the constraints are statsified:
-                
+
                 for trial = 1:(odors*numtrainingSamples)
-                    
+
                     ActivationsDummy(:,trial) = thisW_ActivityBasedComp_noxjk'*PNtrials(:,trial);
                     Y_d(:,trial)=(( ActivationsDummy(:,trial)-(C_.*theta_comp2_noxjk))>0 ).*( ActivationsDummy(:,trial)-(C_.*theta_comp2_noxjk));
                     codingLevelDummy(trial)=  (sum(Y_d(:,trial)>0,1)/n);
                 end
                 InhAbs_CL=mean(codingLevelDummy);
-                
+
                 for trial = 1:(odors*numtrainingSamples)
-                    
+
                     Activations(:,trial) = thisW_ActivityBasedComp_noxjk'*PNtrials(:,trial);
                     Y_(:,trial)=(( Activations(:,trial)-(APLgains_noxjk)*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_comp2_noxjk))>0 ).*( Activations(:,trial)-APLgains_noxjk*repmat(sum(Activations(:,trial),1),n,1)-(C_.*theta_comp2_noxjk));
                     codingLevelDummy(trial)=  (sum(Y_(:,trial)>0,1)/n);
-                    
+
                 end
                 CL_=mean(codingLevelDummy);
-                
+
                 conditions= all(abs(avgAKcs-A0)<epsilon) &( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
                 if mod(t,10)==0
                     disp(t)
@@ -666,11 +666,11 @@ for mods=1:modss
                 end
                 t=t+1;
             end
-            
+
             theta_comp2_noxjk=(C_.*theta_comp2_noxjk);
             toc
             disp('finished blue model');
-            
+
             
             %% tuning input excitatory weights, H_indiv in FigS3, the dark blue model
             %% each PN-KC is tuned individually using the extra <x_jk>k factor

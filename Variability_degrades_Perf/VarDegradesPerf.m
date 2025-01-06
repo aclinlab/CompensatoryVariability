@@ -11,20 +11,22 @@ clc
 %loading Hallem-Carlson data
 load('hallem_olsen.mat');
 % param. initializations
-ll=30;
+ll=30; % trials, each corresponding to different mushroom body instance
 numtrainingSamples=15;
 
 % at 4 scales of 200 odors, in increment of 50: 50,100,150,200.
 % to test at just one scale (like 100 odors): simply change
 % modss=1, and mulOd=100
 modss=4; %4
-mulOd=200; %200
+mulOd=200; %200 odors we want to test
 
 odors=mulOd;
 
 numTrials = 30; %number of noisy trials per each odors
 PN = hallem_olsen(1:110,:)';
-PNs_2=zeros(24,odors-100);
+PNs_2=zeros(24,odors-100); %we want to get to mulOd total odors, and will retrieve 100 from another file
+%this variable name is (probably mistaken) should be PNs_2_, but it's
+%ultimtaely without consequence
 k=0;
 binsAll=zeros(24,100);
 
@@ -100,12 +102,16 @@ xrange = [min(binsAll(:)) max(binsAll(:))];
 plot(xrange, p(1)*xrange + p(2))
 
 %% recover the original fictitious odors from the rescaled fictitious odors
+% why dow e do this both ways? i.e. rescale PN_1 to PN_2 scale and PN_2 to
+% PN_1? Should we not map onto the same scale by remapping only 1 set?
 PNs_1 = (PNs_1_ - p(2))/p(1);
 PNs_2=  (PNs_2_*p(1))+p(2);
 
 
-
-PNs=[PNs_1 PNs_2_];
+% WAIT !!?? Why do we take PN_2_ instead of PN_2, this looks like a typo
+%or maybe on purpose, because both PN_1 and PN_2 are rescaled, which seemed
+%odd in the first place?
+PNs=[PNs_1 PNs_2_]; % now this is the 24 by 200 matrix (24 ORNs 200 odors)
 
 %start a parallel pool to speed up computation, pool of 4 threads
 p=parpool(4);
@@ -138,68 +144,71 @@ for mods=1:modss
         
         m=24;  %number of dimensions in the input data/ PNs
         
-        clawsNo=(normrnd(6,1.7,[1 n])); %select number of claws randomly
+        %select number of claws randomly 
+        % -> for models depicted with green in Fig2
+        clawsNo=(normrnd(6,1.7,[1 n])); 
         clawsNo(clawsNo<2)=2;
         clawsNo(clawsNo>11)=11;
         
         HomogClaws= ones([1,n])*6;
         
-        PNsperKC = round(clawsNo.*ones(1,n));
+        PNsperKC = round(clawsNo.*ones(1,n)); %scale factor, simply =1 here
         
         HomogPNsperKC= HomogClaws;
         
-        for i=1:n
-            PnToKc{i} = randsample(m, PNsperKC(i), true);
+        % set up individual KC connectivity, sample either variable or
+        % homogenously in terms of PN-KC connections
+        for i=1:n %iterate through KCs
+            %draws from 1:24 (correspond to PN ids)
+            PnToKc{i} = randsample(m, PNsperKC(i), true); 
             HomogPnToKc{i}= randsample(m, HomogPNsperKC(i), true);
         end % random initilaization of the weights
         
         %initialize the weights matrix between KC and PN
-        thisW = zeros(m, n);
-        thisW_HomogModel=zeros(m,n);
+        thisW = zeros(m, n); %just reserves a variable, value irrelevant
+        thisW_HomogModel=zeros(m,n); %value irrelevant
         
         %% 4 more models
         
-        % variable n &/or theta, fixed w.
-        thisW_varN= zeros(m,n);
+        % variable n (=clawNo) &/or theta, fixed w.
+        thisW_varN= zeros(m,n); %for model with var clawCount, fixed w
         
         % variable w but same n &/or theta,
-        thisW_varWonly= zeros(m,n);
+        thisW_varWonly= zeros(m,n); %weights for fixed var N/theta, var W
         
-        
+        %instantiate weights for models with variable clawCount N
+        % 2 flavors: var N & var w ; var N &fixed w
         for k=1:n
-            
             for j=1:length(PnToKc{k})
                 
                 whichPN = PnToKc{k}(j);
                 
                 % pick random weight from a log normal distribution that
                 % roughtly fits the Turner distribution
-                
-                thisWeight = exp(-0.0507+0.3527*randn(1));
-                
+                thisWeight = exp(-0.0507+0.3527*randn(1)); %randn=Norm(0,1)
                 % variable n but same weight values
                 thisweight_same_var_n=1;
                 
-                
+				%model with variable N (#claws) and weights
                 thisW(whichPN, k) = thisW(whichPN, k) + thisWeight;
+				%model with variable N but homogeneous weights
                 thisW_varN(whichPN,k)= thisW_varN(whichPN,k)+ thisweight_same_var_n;
                 
             end
         end
         
-        
+        %instantiate weights for models with homogeneous clawCount N        
         for k=1:n
-            
             for j=1:length(HomogPnToKc{k})
                 
                 whichPN_homog= HomogPnToKc{k}(j);
                 
-                thisWeightHomo=1; %% homogenous equal unity weights connecting KCs to PNs.
-                
+				thisWeightHomo=1; %% homogenous equal unity weights connecting KCs to PNs.
                 thisWeight = exp(-0.0507+0.3527*randn(1));
                 
+				%model with homogenous N (#claws) and homog. weights
                 thisW_HomogModel(whichPN_homog,k)= thisWeightHomo+ thisW_HomogModel(whichPN_homog,k);
-                
+                %model with homogenous N (#claws) but variable weights
                 thisW_varWonly(whichPN_homog,k)= thisW_varWonly (whichPN_homog,k) + thisWeight;
                 
             end
@@ -214,14 +223,17 @@ for mods=1:modss
         step=1.0;
         
         % initalizing empty arrays for the calculations below
+		% Ftheta refers to fixed theta models
+		% -> I am confident these could be moved into next for-loop (for each noise)
+		% --> actually they appear to never be used, so flagged for removal
         ActivationsDummy=zeros(n,odors*numtrainingSamples);
-        ActivationsEqualizeddummy=zeros(n,odors*numtrainingSamples);
+        ActivationsEqualizeddummy=zeros(n,odors*numtrainingSamples); %used to tune Ctheta and alpha
         ActivationsHomogenousdummy=zeros(n,odors*numtrainingSamples);
         ActivationsDummy_Ftheta=zeros(n,odors*numtrainingSamples);
         ActivationsEqualizeddummy_Ftheta=zeros(n,odors*numtrainingSamples);
         ActivationsHomogenousdummy_Ftheta=zeros(n,odors*numtrainingSamples);
         Ydummy=zeros(n,odors*numtrainingSamples);
-        YEqualizeddummy=zeros(n,odors*numtrainingSamples);
+        YEqualizeddummy=zeros(n,odors*numtrainingSamples); %used to tune Ctheta and alpha
         YHomogdummy=zeros(n,odors*numtrainingSamples);
         
         Ydummy_Ftheta=zeros(n,odors*numtrainingSamples);
@@ -235,26 +247,30 @@ for mods=1:modss
         for noiseScale=1:NScales
             
             if( (odors==100) || (odors~=100 && noiseScale==2))
-                noise= noiseLevels(noiseScale);
+                noise= noiseLevels(noiseScale);  % noiseLevels=[0.5,1,2];
                 
                 PNtrials = zeros(24, odors, numTrials);
                 SNR=zeros(24,odors,numTrials);
-                PNtrials(:,:,1) =x;
-                for t = 1:numTrials-1
-                    PNtrials(:,:,t+1) = x + ...
-                        getPNStdevBhandawat(x) .* ...
-                        noise.*randn(24, odors);
+                PNtrials(:,:,1) =x; %first trial is "simply" the first instance of the fictitious odor response
+                % for all trials, add some noise to the generated fictitious odor response, and calculate a SNR ratio
+				for t = 1:numTrials-1
+					% actually, why not sample the randn once and use the SAME value for PNtrials and SNR?
+                    PNtrials(:,:,t+1) = x + ... % add some noise to the generated fictitious odor response
+                        getPNStdevBhandawat(x) .* ... %returns hard-coded glomeruli-specific std-value from Bhandawat2007
+                        noise.*randn(24, odors); %noise amplitude times normal distr. number
                     SNR(:,:,t)= (x./(getPNStdevBhandawat(x) .* ...
-                        noise.*randn(24, odors))).^2;
-                    SNR(:,:,t)=log(SNR(:,:,t));
+                        noise.*randn(24, odors))).^2; % an individual SNR ratio (x is signal, glomeruli-spec std times random noise amplitude
+                    SNR(:,:,t)=log(SNR(:,:,t)); %log-SNR 
                 end
                 
-                SNR_averageAcrossTrials_andPNs(mods,randomTrials,noiseScale)= mean(SNR(:));
+				% mean SNR given odor sample size and given MB instance
+                SNR_averageAcrossTrials_andPNs(mods,randomTrials,noiseScale)= mean(SNR(:)); 
                 
                 % making sure that PN responses are +ve
                 PNtrials(PNtrials<0)=0;
                 
                 %rescaling the PN responses in range from 0 to 5
+				%  --> WHY?
                 PNtrials=rescale(PNtrials,0,5);
                 tic
                 
@@ -262,31 +278,40 @@ for mods=1:modss
                 % spmd
                 %
                 %     if labindex==1
+				%% begin optimisation procedure to get C_theta and APLgain values that satisfy coding level constraints
+				%% for the variable weight, variable theta model.
                 CLevelP=[];
                 INHAbs_CLP=[];
+                %thetaS is spike threshold in KCs (n=2000 KCs)
                 T=10;
                 thetaS=abs(normrnd(T,T*(5.6/21.5),[n 1])); %% avoid negative values of theta
                 thetaS(thetaS>70)=70;
                 thetaS(thetaS<0.01)=0.01;
-                constraints=0; %%
-                A=zeros(n,odors*numtrainingSamples);
-                Y=zeros(n,odors*numtrainingSamples);
-                eta=1;
-                C_thetaS=1;
+				
+				%n=2000 KCs, numtrainingSamples=15
+                A=zeros(n,odors*numtrainingSamples); %A is excitation to KC_i from PNs to odor k
+                Y=zeros(n,odors*numtrainingSamples); %resulting activity of KC without APL feedback
+                eta=1; %scales adjustment steps for C_theta
+                C_thetaS=1; %scaling factor to achieve the correct average coding level (10 resp. 20%)
+				eta_2=0.0000001; %scales adjustment steps for ALPgain
                 
+                constraints=0; %%
                 % while the Spar.constraints are NOT TRUE: repeat
                 while(~constraints)
-                    
+                    %calculate the KC responses to PN input for training trials
                     for trial = 1:(odors*numtrainingSamples)
                         
-                        A(:,trial) = thisW'*PNtrials(:,trial);
+                        A(:,trial) = thisW'*PNtrials(:,trial); %excitation to KCs, first term of eq.3
+						% calculate KC activity if at all (if A exceeds (adjusted) spiking threshold) (no inhibition)
                         Y(:,trial)=(( A(:,trial)-(C_thetaS.*thetaS) )>0 ).*( A(:,trial)-(C_thetaS.*thetaS));
-                        codingLevelDummy(trial)=  (sum(Y(:,trial)>0,1)/n);
+                        codingLevelDummy(trial)=  (sum(Y(:,trial)>0,1)/n); %count proportion of active KCs
                     end
-                    InhAbs_mSimp=mean(codingLevelDummy);
+                    InhAbs_mSimp=mean(codingLevelDummy); %inhibition absent, 
                     
                     %% we want to change the theta so to achieve InhAbs_CL=2xCL
-                    depsi1_dy=(exp(0.9.*Y)./((1+exp(0.9.*Y)).^2));
+					% c.f. eq.14 and previous
+					% CL stands for Coding Level, and we want 10% resp. 20% of KCs active with/without inhibition
+                    depsi1_dy=(exp(0.9.*Y)./((1+exp(0.9.*Y)).^2)); %shouldn't this be 0.8 instead?
                     depsi1_dy(isnan(depsi1_dy))=0;
                     depsi1_dtheta= -(Y>0).* depsi1_dy.* (repmat(thetaS,1,odors*numtrainingSamples));
                     Grad= ((InhAbs_mSimp)-0.20)*(1/(n*odors*numtrainingSamples)).*(sum(depsi1_dtheta(:)));
@@ -297,15 +322,20 @@ for mods=1:modss
                     end
                     
                     %% allow alpha to be a free parameter: achieving the 2nd spar. constraint CL=10%
-                    eta_2=0.0000001;
-                    
+                    % similar calculation, but including estimate of APLgain, and with adjusted C_theta
                     for trial = 1:(odors*numtrainingSamples)
                         ActivationsEqualizeddummy(:,trial) = thisW'*PNtrials(:,trial);
-                        YEqualizeddummy(:,trial)=(( ActivationsEqualizeddummy(:,trial)-(APLgainP(1))*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)- (C_thetaS.*thetaS) )>0 ).*( ActivationsEqualizeddummy(:,trial)-APLgainP(1)*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-(C_thetaS.*thetaS) );
+                        YEqualizeddummy(:,trial)=(( ActivationsEqualizeddummy(:,trial)-...
+							APLgainP(1)*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-...
+							(C_thetaS.*thetaS) )>0 ) .* ...
+						  ( ActivationsEqualizeddummy(:,trial)- ...
+						    APLgainP(1)*repmat(sum(ActivationsEqualizeddummy(:,trial),1),n,1)-...
+							(C_thetaS.*thetaS) );
                         codingLevelEqualizedDummy(trial)=  (sum(YEqualizeddummy(:,trial)>0,1)/n);
                     end
                     CLRand=mean(codingLevelEqualizedDummy);
                     
+					%c.f. eq.18 and previous, adjusting APLgain alpha
                     dsig_dy=(exp(0.9.*YEqualizeddummy)./((1+exp(0.9.*YEqualizeddummy)).^2));
                     dsig_dy(isnan(dsig_dy))=0;
                     dAct_dalpha= sum(ActivationsEqualizeddummy,1);
@@ -314,13 +344,17 @@ for mods=1:modss
                     APLgainP(1)= APLgainP(1)- eta_2*(Grad_alpha);
                     
                     %% checking if the constraints are met:
-                    for trial = 1:(odors*numtrainingSamples)
+					% repeat calculations done during optimisation but with updated values C_theta, APLgain
+                    %  first for zero-inhibition condition
+					for trial = 1:(odors*numtrainingSamples)
                         Activations_S(:,trial) = thisW'*PNtrials(:,trial);
-                        Y_S(:,trial)=(( Activations_S(:,trial)-(C_thetaS.*thetaS) )>0 ).*( Activations_S(:,trial)-(C_thetaS.*thetaS) );
+                        Y_S(:,trial)=(( Activations_S(:,trial)-(C_thetaS.*thetaS) )>0 )...
+							.*( Activations_S(:,trial)-(C_thetaS.*thetaS) );
                         codingLevelDummy(trial)=  (sum(Y_S(:,trial)>0,1)/n);
                     end
                     InhAbs_CL=mean(codingLevelDummy);
                     
+					%  then for KC activity with APL inhibition
                     for trial = 1:(odors*numtrainingSamples)
                         Activation(:,trial) = thisW'*PNtrials(:,trial);
                         Y(:,trial)=(( Activation(:,trial)-(APLgainP(1))*repmat(sum(Activation(:,trial),1),n,1)-(C_thetaS.*thetaS) )>0 ).*( Activation(:,trial)-APLgainP(1)*repmat(sum(Activation(:,trial),1),n,1)-(C_thetaS.*thetaS) );
@@ -330,14 +364,15 @@ for mods=1:modss
                     
                     constraints= ( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( abs(CL_-0.10)<0.01 );
                     
-                    
                 end
-                CLevelP(end+1)=CL_;
+				% end optimisation, store results
+                CLevelP(end+1)=CL_; %appends to vector, empty until now (renewed for each noise level)
                 thetaS=(C_thetaS.*thetaS) ;
                 INHAbs_CLP(end+1)=InhAbs_CL;
                 
                 %        elseif labindex==2
-                % for the homogenous weights, variable theta model.
+                %% for the homogenous weights, variable theta model.
+				% for comments, refer to previous optimisation for variable weight model
                 Th=10;
                 thetaH=abs(normrnd(Th,Th*(5.6/21.5),[n 1])); %% avoid negative values of theta
                 thetaH(thetaH>70)=70;
@@ -400,13 +435,13 @@ for mods=1:modss
                     
                     constraints= (abs( (InhAbs_CL/CL_) - 2.0)<0.2) &( abs(CL_-0.10)<0.01 );
                 end
-                
+                % appends results to same vector
                 CLevelP(end+1)=CL_;
                 INHAbs_CLP(end+1)=InhAbs_CL;
                 thetaH=(C_thetaH*thetaH);
                 
                 %% ---------------------------------------------------------------------
-                %%%%%%%  Optimization  FOR THE FIXED THREHSOLD MODELS %%%%%%
+                %%%%%%%  Optimization  FOR THE FIXED THRESHOLD MODELS %%%%%%
                 
                 %     elseif labindex==3
                 % Random Weights fixed thresholds model
@@ -463,7 +498,7 @@ for mods=1:modss
                     constraints= ( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( (abs(CL_-0.10)) <=0.01 );
                     
                 end
-                
+                % appends results to same vector
                 CLevelP(end+1)=CL_;
                 INHAbs_CLP(end+1)=InhAbs_CL;
                 thetaS_Ftheta=(C_thetaS_Ftheta*thetaS_Ftheta);
@@ -533,14 +568,17 @@ for mods=1:modss
                     end
                     
                 end
+                % appends results to same vector
                 CLevelP(end+1)=CL_;
                 INHAbs_CLP(end+1)=InhAbs_CL;
                 thetaH_Ftheta=(C_thetaHF*thetaH_Ftheta);
                 
                 %     end [CLevelP{1},CLevelP{2},CLevelP{3},CLevelP{4}];
                 % end [INHAbs_CLP{1},INHAbs_CLP{2},INHAbs_CLP{3},INHAbs_CLP{4}];
-                Clevels=CLevelP;
-                INHAbs_CL=INHAbs_CLP;
+				
+				%these two assignments represent a change of variable name, will later be appended to
+                Clevels=CLevelP; %refers to coding levels of all 4 optimised models
+                INHAbs_CL=INHAbs_CLP; %similarly, coding levels absent the inhibition
                 
                 for i=1:4
                     APLgains(i)=APLgainP(i);
@@ -631,7 +669,7 @@ for mods=1:modss
                     constraints= ( abs( (InhAbs_CL/CL_) - 2.0)<0.2 ) &( abs(CL_-0.10)<0.01 );
                     
                 end
-                
+                % appends results to same vector
                 Clevels(5)=CL_;
                 INHAbs_CL(5)=InhAbs_CL;
                 theta_varw_fixedN=(C_theta5.*theta_varw_fixedN);
@@ -868,7 +906,12 @@ for mods=1:modss
                 %
                 % end
                 
-                Activations=zeros(n,odors*numTrials);
+				
+				%% calculate KC responses (Y) to all odors
+				
+				% Activation variable refers to the first term in eq.3, i.e. the excitatory drive to KCs before inhibition or thresholding
+                % This is done first because the spiking activity combines the exc. and the APL inhib., whihc depends on total exc. as well
+				Activations=zeros(n,odors*numTrials);
                 ActivationsHomog=zeros(n,odors*numTrials);
                 Activations_varW_fixedN= zeros(n,odors*numTrials);
                 Activations_varN_fixedW= zeros(n,odors*numTrials);
@@ -877,17 +920,17 @@ for mods=1:modss
                 Activations_varW_fixedN_and_theta= zeros(n,odors*numTrials);
                 Activations_varN_fixedW_and_theta= zeros(n,odors*numTrials);
                 
-                
-                Y=zeros(n,odors*numTrials);
-                YHomog=zeros(n,odors*numTrials);
-                Y_varw_fixedN= zeros(n,odors*numTrials);
-                Y_varN_fixedW= zeros(n,odors*numTrials);
-                Y_Ftheta=zeros(n,odors*numTrials);
-                YHomog_Ftheta=zeros(n,odors*numTrials);
+                % Y refers to the spiking/output activity of KCs, incorporating APL inhibition and spiking thresholds
+                Y=zeros(n,odors*numTrials); %model 1
+                YHomog=zeros(n,odors*numTrials); %model 2
+                Y_varw_fixedN= zeros(n,odors*numTrials); %model 3
+                Y_varN_fixedW= zeros(n,odors*numTrials); 
+                Y_Ftheta=zeros(n,odors*numTrials); 
+                YHomog_Ftheta=zeros(n,odors*numTrials); %model 4
                 Y_varw_fixedN_and_theta= zeros(n,odors*numTrials);
                 Y_varN_fixedW_and_theta= zeros(n,odors*numTrials);
                 
-                
+				% double-checked all variable names with parameter combinations -> OK
                 for trial = 1:(odors*numTrials)
                     
                     ActivationsHomog_Ftheta(:,trial) = thisW_HomogModel'*PNtrials(:,trial  );
@@ -920,10 +963,11 @@ for mods=1:modss
                 %%
                 % training the KC-MBON weights, testing different learning rates & noise in
                 % the decision making process (uncertainity in the output) Fig2 C2,C4
-                for l_r=1:lrs
+				
+                for l_r=1:lrs %learning rates, 10 different learning rates defined at beginning
                     
                     % starting at initial random values for KC-MBon weights
-                    
+                    % all weights are initiated with two values, for 1 approach and 1 avoid MBON
                     WopAllOdours=1*rand(n,2);
                     WopAllOdoursHomog=WopAllOdours;
                     WopAllOdours_Ftheta=WopAllOdours;
@@ -937,7 +981,7 @@ for mods=1:modss
                     
                     WopFromPNs= 1*rand(m,2);
                     %                 alpha= 0.001*(10^(l_r));
-                    alpha=LRs(l_r);
+                    alpha=LRs(l_r); %LRs=10.^[-5 -4 -3 -2.75 -2.5 -2.25 -2 -1 0 1];
                     
                     c=1;
                     ceq=1;
@@ -979,16 +1023,19 @@ for mods=1:modss
                     
                     
                     for odour=1:odors
-                        
-                        if( ~ isempty(find(classAction1==odour)) )
+                        %classAction1 is a subset of half the odors, i.e. means rewarded vs punished odors
+						% NB, this code does not explicit which is rewarded or punished, and it doesn't matter as long as it's consistent
+                        if( ~ isempty(find(classAction1==odour)) ) %if odor is rewarded
                             delta =  exp( -(alpha/mean(YHomogtr(:)))* sum(YHomogtr(:,odour,:),3) );
-                            deltaWH(:,ch)= WopAllOdoursHomog(:,2).*(delta-1);
+                            deltaWH(:,ch)= WopAllOdoursHomog(:,2).*(delta-1); % I think this is only for keeping tabs
+							% Why is deltaW a negative number for class1 only, but the weights are updated by 0<delta<1 (which makes sense to me)?
+							% -> I assume this is a remnant of a previous procedure, which has been dropped, and deltaW is not used ever again?
                             ch=ch+1;
-                            WopAllOdoursHomog(:,2)= WopAllOdoursHomog(:,2) .*delta;
+                            WopAllOdoursHomog(:,2)= WopAllOdoursHomog(:,2) .*delta; % so, the weights to MBON 2 are decreased
                             
                         else
                             delta = exp(- (alpha/mean(YHomogtr(:)))* sum(YHomogtr(:,odour,:),3) );
-                            WopAllOdoursHomog(:,1)= WopAllOdoursHomog(:,1) .*delta;
+                            WopAllOdoursHomog(:,1)= WopAllOdoursHomog(:,1) .*delta; %so here the weights to MBON 1 are decreased
                             
                         end
                         
@@ -1070,7 +1117,7 @@ for mods=1:modss
                         
                     end
                     
-                    %% perfromance as a function of the strictness of the decision making
+                    %% performance as a function of the strictness of the decision making
                     %% this strictness is dictated by C in the soft-max function.
                     %% so given the same fly, same task, and after learning measure the performance as f(c)
                     
