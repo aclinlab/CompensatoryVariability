@@ -96,5 +96,6 @@ MBmodel.C_theta = C_theta;
 MBmodel.alpha = APLgain;
 MBmodel.CL_disInh = CL_disInh;
 MBmodel.CL_incInh = CL_incInh;
+MBmodel.modelType = 'NO homeostatic mechanism';
 
 end

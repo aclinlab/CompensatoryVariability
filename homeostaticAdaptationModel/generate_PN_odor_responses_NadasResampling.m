@@ -1,4 +1,4 @@
-function PNactivity = generate_PN_odor_responses()
+function PNactivity = generate_PN_odor_responses_NadasResampling()
 
 %candidates for arguments to be integrated into function call
 numtrainingSamples=15;

@@ -144,5 +144,7 @@ MBmodel.C_theta = C_theta;
 MBmodel.alpha = APLgains_array;
 MBmodel.CL_disInh = CL_disInh;
 MBmodel.CL_incInh = CL_incInh;
+MBmodel.lifetimeActivity = avgAKcs;
+MBmodel.modelType = 'homeostatic APL gain aka GREEN model';
 
 end
